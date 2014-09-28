@@ -15,7 +15,8 @@
         "Description"				: "Enter the port your web instances will listen on."
     },
     "WebTarget" : {
-        "Type"					: "String", "Default" : "/index.html",
+        "Type"					: "String",
+        "Default"				: "/index.html",
         "Description"				: "Enter the web instance health check URI."
     },
     "PublicSubnets" : {
