@@ -1,0 +1,201 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Public Facing SSL ELB template.",
+
+  "Parameters" : {
+    "SecurityGroupId" : {
+        "Type"					: "CommaDelimitedList",
+        "Default"				: "sg-0123456",
+        "Description"				: "Enter one or more security group ids."
+    },
+    "WebInstancePort" : {
+        "Type"					: "Number",
+        "Default"				: "8080",
+        "Description"				: "Enter the port your web instances will listen on."
+    },
+    "WebTarget" : {
+        "Type"					: "String", "Default" : "/index.html",
+        "Description"				: "Enter the web instance health check URI."
+    },
+    "PublicSubnets" : {
+        "Type"					: "CommaDelimitedList",
+        "Default"				: "subnet-0123456, subnet-7890123",
+        "Description"				: "Enter the subnet ids for your public subnets."
+    },
+    "SSLCertARN" : {
+        "Type"					: "String",
+        "Default"				: "arn:aws:iam::XXX:server-certificate/my.cert.com",
+        "Description"				: "Enter the site SSL cerificate ARN."
+    }
+  },
+
+  "Resources" : {
+
+    "S3LoggingBucket" : {
+        "Type" : "AWS::S3::Bucket"
+    },
+
+    "S3LoggingBucketPolicy" : {
+        "Type" : "AWS::S3::BucketPolicy",
+        "Properties" : {
+          "Bucket"				: { "Ref" : "S3LoggingBucket" },
+          "PolicyDocument" : {
+            "Version"				: "2008-10-17",
+            "Statement" : [ {
+              "Effect"				: "Allow",
+              "Resource" : {
+                "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref": "S3LoggingBucket" }, "/AWSLogs/", { "Ref": "AWS::AccountId" }, "/*" ] ]
+              },
+              "Principal"			: { "AWS": "*" },
+              "Action"				: [ "s3:PutObject" ]
+            } ]
+          }
+        }
+    },
+
+    "elbWeb" : {
+        "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+        "Properties" : {
+          "Subnets"				: { "Ref" : "PublicSubnets"  },
+          "CrossZone"				: "true",
+          "SecurityGroups"			: { "Ref" : "SecurityGroupId"  },
+          "LBCookieStickinessPolicy" : [ {
+            "PolicyName"			: "StickyPolicy",
+            "CookieExpirationPeriod"		: "300"
+          } ],
+          "HealthCheck" : 
+          {
+            "HealthyThreshold"			: "2",
+            "Interval"				: "10",
+            "Target" : {
+              "Fn::Join" : [ "", [ "HTTP", ":", { "Ref" : "WebInstancePort" }, { "Ref" : "WebTarget" } ] ]
+            },
+            "Timeout"				: "5",
+            "UnhealthyThreshold"		: "3"
+          },
+          "Listeners" : [
+          {
+            "InstancePort"			: { "Ref" : "WebInstancePort" },
+            "InstanceProtocol"			: "HTTP",
+            "LoadBalancerPort"			: "443",
+            "Protocol"				: "HTTPS",
+            "SSLCertificateId"			: { "Ref" : "SSLCertARN" },
+            "PolicyNames"			: [ "StickyPolicy", "myELBSecurity-Policy-2014-01" ]
+          } ],
+          "ConnectionDrainingPolicy": {
+            "Enabled"				: "true",
+            "Timeout"				: "60"
+          },
+          "AccessLoggingPolicy" : {
+            "S3BucketName"			: { "Ref" : "S3LoggingBucket" },
+            "Enabled"				: "true",
+            "EmitInterval"			: "60"
+          },
+          "Policies" : [
+          {
+            "PolicyName"			: "myELBSecurity-Policy-2014-01",
+            "PolicyType"			: "SSLNegotiationPolicyType",
+              "Attributes": [
+                 { "Name" : "Protocol-SSLv2", "Value" : "false" },
+                 { "Name" : "Protocol-TLSv1", "Value" : "true" },
+                 { "Name" : "Protocol-SSLv3", "Value" : "true" },
+                 { "Name" : "Protocol-TLSv1.1", "Value" : "true" },
+                 { "Name" : "Protocol-TLSv1.2", "Value" : "true" },
+                 { "Name" : "Server-Defined-Cipher-Order", "Value" : "true" },
+                 { "Name" : "ECDHE-ECDSA-AES128-GCM-SHA256", "Value" : "true" },
+                 { "Name" : "ECDHE-RSA-AES128-GCM-SHA256", "Value" : "true" },
+                 { "Name" : "ECDHE-ECDSA-AES128-SHA256", "Value" : "true" },
+                 { "Name" : "ECDHE-RSA-AES128-SHA256", "Value" : "true" },
+                 { "Name" : "ECDHE-ECDSA-AES128-SHA", "Value" : "true" },
+                 { "Name" : "ECDHE-RSA-AES128-SHA", "Value" : "true" },
+                 { "Name" : "ECDHE-ECDSA-AES256-GCM-SHA384", "Value" : "true" },
+                 { "Name" : "ECDHE-RSA-AES256-GCM-SHA384", "Value" : "true" },
+                 { "Name" : "ECDHE-ECDSA-AES256-SHA384", "Value" : "true" },
+                 { "Name" : "ECDHE-RSA-AES256-SHA384", "Value" : "true" },
+                 { "Name" : "ECDHE-RSA-AES256-SHA", "Value" : "true" },
+                 { "Name" : "ECDHE-ECDSA-AES256-SHA", "Value" : "true" },
+                 { "Name" : "AES128-GCM-SHA256", "Value" : "true" },
+                 { "Name" : "AES128-SHA256", "Value" : "true" },
+                 { "Name" : "AES128-SHA", "Value" : "true" },
+                 { "Name" : "AES256-GCM-SHA384", "Value" : "true" },
+                 { "Name" : "AES256-SHA256", "Value" : "true" },
+                 { "Name" : "AES256-SHA", "Value" : "true" },
+                 { "Name" : "DHE-RSA-AES128-SHA", "Value" : "true" },
+                 { "Name" : "DHE-DSS-AES128-SHA", "Value" : "true" },
+                 { "Name" : "CAMELLIA128-SHA", "Value" : "false" },
+                 { "Name" : "EDH-RSA-DES-CBC3-SHA", "Value" : "false" },
+                 { "Name" : "DES-CBC3-SHA", "Value" : "false" },
+                 { "Name" : "ECDHE-RSA-RC4-SHA", "Value" : "true" },
+                 { "Name" : "RC4-SHA", "Value" : "true" },
+                 { "Name" : "ECDHE-ECDSA-RC4-SHA", "Value" : "false" },
+                 { "Name" : "DHE-DSS-AES256-GCM-SHA384", "Value" : "false" },
+                 { "Name" : "DHE-RSA-AES256-GCM-SHA384", "Value" : "false" },
+                 { "Name" : "DHE-RSA-AES256-SHA256", "Value" : "false" },
+                 { "Name" : "DHE-DSS-AES256-SHA256", "Value" : "false" },
+                 { "Name" : "DHE-RSA-AES256-SHA", "Value" : "false" },
+                 { "Name" : "DHE-DSS-AES256-SHA", "Value" : "false" },
+                 { "Name" : "DHE-RSA-CAMELLIA256-SHA", "Value" : "false" },
+                 { "Name" : "DHE-DSS-CAMELLIA256-SHA", "Value" : "false" },
+                 { "Name" : "CAMELLIA256-SHA", "Value" : "false" },
+                 { "Name" : "EDH-DSS-DES-CBC3-SHA", "Value" : "false" },
+                 { "Name" : "DHE-DSS-AES128-GCM-SHA256", "Value" : "false" },
+                 { "Name" : "DHE-RSA-AES128-GCM-SHA256", "Value" : "false" },
+                 { "Name" : "DHE-RSA-AES128-SHA256", "Value" : "false" },
+                 { "Name" : "DHE-DSS-AES128-SHA256", "Value" : "false" },
+                 { "Name" : "DHE-RSA-CAMELLIA128-SHA", "Value" : "false" },
+                 { "Name" : "DHE-DSS-CAMELLIA128-SHA", "Value" : "false" },
+                 { "Name" : "ADH-AES128-GCM-SHA256", "Value" : "false" },
+                 { "Name" : "ADH-AES128-SHA", "Value" : "false" },
+                 { "Name" : "ADH-AES128-SHA256", "Value" : "false" },
+                 { "Name" : "ADH-AES256-GCM-SHA384", "Value" : "false" },
+                 { "Name" : "ADH-AES256-SHA", "Value" : "false" },
+                 { "Name" : "ADH-AES256-SHA256", "Value" : "false" },
+                 { "Name" : "ADH-CAMELLIA128-SHA", "Value" : "false" },
+                 { "Name" : "ADH-CAMELLIA256-SHA", "Value" : "false" },
+                 { "Name" : "ADH-DES-CBC3-SHA", "Value" : "false" },
+                 { "Name" : "ADH-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "ADH-RC4-MD5", "Value" : "false" },
+                 { "Name" : "ADH-SEED-SHA", "Value" : "false" },
+                 { "Name" : "DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "DHE-DSS-SEED-SHA", "Value" : "false" },
+                 { "Name" : "DHE-RSA-SEED-SHA", "Value" : "false" },
+                 { "Name" : "EDH-DSS-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "EDH-RSA-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "IDEA-CBC-SHA", "Value" : "false" },
+                 { "Name" : "RC4-MD5", "Value" : "false" },
+                 { "Name" : "SEED-SHA", "Value" : "false" },
+                 { "Name" : "DES-CBC3-MD5", "Value" : "false" },
+                 { "Name" : "DES-CBC-MD5", "Value" : "false" },
+                 { "Name" : "RC2-CBC-MD5", "Value" : "false" },
+                 { "Name" : "PSK-AES256-CBC-SHA", "Value" : "false" },
+                 { "Name" : "PSK-3DES-EDE-CBC-SHA", "Value" : "false" },
+                 { "Name" : "KRB5-DES-CBC3-SHA", "Value" : "false" },
+                 { "Name" : "KRB5-DES-CBC3-MD5", "Value" : "false" },
+                 { "Name" : "PSK-AES128-CBC-SHA", "Value" : "false" },
+                 { "Name" : "PSK-RC4-SHA", "Value" : "false" },
+                 { "Name" : "KRB5-RC4-SHA", "Value" : "false" },
+                 { "Name" : "KRB5-RC4-MD5", "Value" : "false" },
+                 { "Name" : "KRB5-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "KRB5-DES-CBC-MD5", "Value" : "false" },
+                 { "Name" : "EXP-EDH-RSA-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "EXP-EDH-DSS-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "EXP-ADH-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "EXP-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "EXP-RC2-CBC-MD5", "Value" : "false" },
+                 { "Name" : "EXP-KRB5-RC2-CBC-SHA", "Value" : "false" },
+                 { "Name" : "EXP-KRB5-DES-CBC-SHA", "Value" : "false" },
+                 { "Name" : "EXP-KRB5-RC2-CBC-MD5", "Value" : "false" },
+                 { "Name" : "EXP-KRB5-DES-CBC-MD5", "Value" : "false" },
+                 { "Name" : "EXP-ADH-RC4-MD5", "Value" : "false" },
+                 { "Name" : "EXP-RC4-MD5", "Value" : "false" },
+                 { "Name" : "EXP-KRB5-RC4-SHA", "Value" : "false" },
+                 { "Name" : "EXP-KRB5-RC4-MD5", "Value" : "false" } 
+              ]
+            }
+          ]
+        },
+        "DependsOn": "S3LoggingBucketPolicy"
+      }
+    }
+}
