@@ -3,7 +3,7 @@
 # Python Version: 2.7
 #
 # Test VPC subnet creation in all available zones 
-# Used for older AWS accounts with both classic ec2 and default VPC options
+# Used for older AWS accounts with both ec2-classic and default-VPC options
 
 # Must be the first line
 from __future__ import print_function
@@ -13,7 +13,7 @@ import boto.ec2
 import sys
 
 # ** Modify these variables as needed **
-PROFILE = 'toddm92'  # (from your ~/.aws/config)
+PROFILE = 'toddm92'  # (from your ~/.boto)
 REGIONS = ( 'us-east-1',  'eu-west-1',  'ap-northeast-1',
             'us-west-1', 'us-west-2', 'ap-southeast-1',
             'ap-southeast-2', 'sa-east-1' )
