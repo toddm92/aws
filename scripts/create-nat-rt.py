@@ -13,7 +13,7 @@ import boto.vpc
 
 # ** Modify these variables as needed. **
 # ** REGION is currently unused. **
-PROFILE = 'awseng'  # (from your ~/.boto)
+PROFILE = 'toddm92'  # (from your ~/.boto)
 #REGION = 'us-east-1'
 # **
 
