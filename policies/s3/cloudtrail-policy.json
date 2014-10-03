@@ -1,0 +1,50 @@
+{
+        "Version" : "2012-10-17",
+        "Statement" : [
+                {
+                        "Sid" : "AWSCloudTrailAclCheck20131101",
+                        "Effect" : "Allow",
+                        "Principal" : {
+                                "AWS" : [
+                                        "arn:aws:iam::903692715234:root",
+                                        "arn:aws:iam::859597730677:root",
+                                        "arn:aws:iam::814480443879:root",
+                                        "arn:aws:iam::216624486486:root",
+                                        "arn:aws:iam::086441151436:root",
+                                        "arn:aws:iam::388731089494:root",
+                                        "arn:aws:iam::284668455005:root",
+                                        "arn:aws:iam::113285607260:root"
+                                ]
+                        },
+                        "Action" : "s3:GetBucketAcl",
+                        "Resource" : "arn:aws:s3:::cloudtrail-logs"
+                },
+                {
+                        "Sid" : "AWSCloudTrailWrite20131101",
+                        "Effect" : "Allow",
+                        "Principal" : {
+                                "AWS" : [
+                                        "arn:aws:iam::903692715234:root",
+                                        "arn:aws:iam::859597730677:root",
+                                        "arn:aws:iam::814480443879:root",
+                                        "arn:aws:iam::216624486486:root",
+                                        "arn:aws:iam::086441151436:root",
+                                        "arn:aws:iam::388731089494:root",
+                                        "arn:aws:iam::284668455005:root",
+                                        "arn:aws:iam::113285607260:root"
+                                ]
+                        },
+                        "Action" : "s3:PutObject",
+                        "Resource" : [
+                                "arn:aws:s3:::cloudtrail-logs/prod/AWSLogs/XXXXXXXX7354/*",
+                                "arn:aws:s3:::cloudtrail-logs/stage/AWSLogs/XXXXXXXX2745/*",
+                                "arn:aws:s3:::cloudtrail-logs/dev/AWSLogs/XXXXXXXX4557/*"
+                        ],
+                        "Condition" : {
+                                "StringEquals" : {
+                                        "s3:x-amz-acl" : "bucket-owner-full-control"
+                                }
+                        }
+                }
+        ]
+}
