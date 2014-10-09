@@ -1,0 +1,23 @@
+{
+  "Statement" : [
+    {
+      "Action" : [
+        "cloudtrail:DescribeTrails",
+        "cloudtrail:GetTrailStatus"
+      ],
+      "Effect" : "Allow",
+      "Resource" : "*"
+    },
+    {
+      "Action" : [
+        "cloudtrail:CreateTrail",
+        "cloudtrail:DeleteTrail",
+        "cloudtrail:StartLogging",
+        "cloudtrail:StopLogging",
+        "cloudtrail:UpdateTrail"
+      ],
+      "Effect" : "Deny",
+      "Resource" : "*"
+    }
+  ]
+}
