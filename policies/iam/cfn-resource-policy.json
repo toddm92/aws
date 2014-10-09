@@ -1,20 +1,20 @@
 {
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Action" : [
-            "cloudformation:*"
-        ],
-        "Effect" : "Allow",
-        "Resource" : "*"
-      },
-      {
-        "Action" : [
-            "cloudformation:DeleteStack",
-            "cloudformation:UpdateStack"
-        ],
-        "Effect" : "Deny",
-        "Resource" : "arn:aws:cloudformation:us-west-2:XXXXXXXX2745:stack/*VPC*"
-      }
-    ]
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Action" : [
+          "cloudformation:*"
+      ],
+      "Effect" : "Allow",
+      "Resource" : "*"
+    },
+    {
+      "Action" : [
+          "cloudformation:DeleteStack",
+          "cloudformation:UpdateStack"
+      ],
+      "Effect" : "Deny",
+      "Resource" : "arn:aws:cloudformation:us-west-2:XXXXXXXX2745:stack/*VPC*"
+    }
+  ]
 }
