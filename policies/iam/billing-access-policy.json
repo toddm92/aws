@@ -1,0 +1,23 @@
+{
+  "Statement" : [
+    {
+      "Action" : [
+        "aws-portal:ViewAccount",
+        "aws-portal:ViewBilling",
+        "aws-portal:ViewUsage"
+      ],
+      "Effect" : "Allow",
+      "Resource" : "*"
+    },
+    {
+      "Action" : [
+        "aws-portal:ModifyAccount",
+        "aws-portal:ModifyBilling",
+        "aws-portal:ViewPaymentMethods",
+        "aws-portal:ModifyPaymentMethods"
+      ],
+      "Effect" : "Deny",
+      "Resource" : "*"
+    }
+  ]
+}
