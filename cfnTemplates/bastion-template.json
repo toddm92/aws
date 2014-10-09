@@ -1,0 +1,158 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "BastionHost On Demand template.",
+
+  "Parameters" : {
+
+    "00BastionCount" : {
+        "Type"                          : "Number",
+        "Default"                       : "1",
+        "MinValue"                      : "0",
+        "MaxValue"                      : "1",
+        "Description"                   : "Enter '1' to launch a bastion host, or '0' to terminate."
+    },
+    "PermittedCIDR" : {
+        "Type"                          : "String",
+        "Default"                       : "192.150.10.0/24",
+        "Description"                   : "Enter the CIDR or IP address to permit SSH from. (Note: Used to create a bastion security group.)",
+        "AllowedPattern"                : "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        "ConstraintDescription"         : "Please enter a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "InstanceType" : {
+        "Type"                          : "String",
+        "Default"                       : "m3.medium",
+        "AllowedValues"                 : ["t2.micro", "t2.small", "t2.medium", "m3.medium", "m3.large", "m3.xlarge"],
+        "Description"                   : "The instance size desired."
+    },
+    "UserKeys" : {
+        "Type"                          : "String",
+        "Default"                       : "pem-key",
+        "AllowedPattern"                : "[-0-9a-zA-Z]*",
+        "Description"                   : "Bastion SSH PEM key name."
+    },
+    "AvailZone" : {
+        "Type"                          : "String",
+        "Default"                       : "us-east-1a",
+        "AllowedPattern"                : "us-east-1[a-d]|us-west-[1-2a-c]|eu-west-1[a-c]|ap-northeast-1[a-c]|ap-southeast-[1-2a-c]|sa-east-1[a-c]",
+        "Description"                   : "Availability zone."
+    },
+    "PublicSubnet" : {
+        "Type"                          : "String",
+        "Default"                       : "subnet-0123456",
+        "AllowedPattern"                : "subnet-[0-9a-z]*",
+        "Description"                   : "Public subnet Id. (Note: Subnet should be located in the same AvailZone.)"
+    },
+    "VPCId" : {
+        "Type"                          : "String",
+        "Default"                       : "vpc-0123456",
+        "AllowedPattern"                : "vpc-[0-9a-z]*",
+        "Description"                   : "Your VPC Id."
+    }
+  },
+
+  "Mappings" : {
+
+    "RegionLinuxAMI" : {
+        "us-east-1"                     : { "AMI" : "ami-08842d60" },
+        "eu-west-1"                     : { "AMI" : "ami-748e2903" },
+        "ap-northeast-1"                : { "AMI" : "ami-35072834" },
+        "us-west-1"                     : { "AMI" : "ami-cfa8a18a" },
+        "us-west-2"                     : { "AMI" : "ami-8786c6b7" },
+        "ap-southeast-1"                : { "AMI" : "ami-d6e1c584" },
+        "ap-southeast-2"                : { "AMI" : "ami-fd4724c7" },
+        "sa-east-1"                     : { "AMI" : "ami-956cc688" }
+    }
+  },
+
+  "Resources" : {
+
+    "asBastionlaunch" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "ImageId"                       : { "Fn::FindInMap" : [ "RegionLinuxAMI", { "Ref" : "AWS::Region" }, "AMI" ] },
+        "KeyName"                       : { "Ref" : "UserKeys" },
+        "InstanceType"                  : { "Ref" : "InstanceType" },
+        "InstanceMonitoring"            : "false",
+        "IamInstanceProfile"            : { "Ref" : "iamBastionProfile" },
+        "AssociatePublicIpAddress"      : "true",
+        "SecurityGroups"                : [ { "Ref" : "ec2BastionSecurityGroup" } ],
+        "UserData"                      : { "Fn::Base64" : { "Fn::Join" : [
+                                            "",
+                                            [ "#!/bin/bash -ex","\n",
+                                                "service sendmail stop","\n",
+                                                "chkconfig sendmail off","\n",
+                                                "yum update -y","\n" ]
+                                                ] }
+                                          }
+      }
+    },
+    "asBastiongroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones"             : [ { "Ref" : "AvailZone" } ],
+        "VPCZoneIdentifier"             : [ { "Ref" : "PublicSubnet" } ],
+        "Cooldown"                      : "120",
+        "DesiredCapacity"               : { "Ref" : "00BastionCount" },
+        "MaxSize"                       : "1",
+        "MinSize"                       : "0",
+        "HealthCheckGracePeriod"        : "180",
+        "LaunchConfigurationName"       : { "Ref" : "asBastionlaunch" },
+        "Tags": [
+          { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName" }, "PropagateAtLaunch" : true },
+          { "Key" : "Name", "Value" : "BastionHost", "PropagateAtLaunch" : true }
+        ]
+      }
+    },
+
+    "iamBastionRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Statement" : [ {
+            "Effect"                    : "Allow",
+            "Principal" : {
+              "Service"                 : [ "ec2.amazonaws.com" ] },
+              "Action"                  : [ "sts:AssumeRole" ]
+          } ]
+        },
+        "Path"                          : "/",
+        "Policies" : [ {
+          "PolicyName"                  : "ec2DenyAll",
+          "PolicyDocument" : {
+            "Statement" : [ {
+              "Effect"                  : "Deny",
+              "Action"                  : [ "ec2:*" ],
+              "Resource"                : "*"
+            } ]
+          }
+        } ]
+      }
+    },
+    "iamBastionProfile" : {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path"                          : "/",
+        "Roles"                         : [ { "Ref": "iamBastionRole" } ]
+      }
+    },
+
+    "ec2BastionSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription"              : "Security group for our bastion instance.",
+        "VpcId"                         : { "Ref" : "VPCId" },
+        "Tags": [
+          { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName"} },
+          { "Key" : "Name", "Value" : "BastionSG" }
+        ],
+        "SecurityGroupIngress" : [
+          { "IpProtocol"                : "tcp",
+            "FromPort"                  : "22",
+            "ToPort"                    : "22",
+            "CidrIp"                    : { "Ref" : "PermittedCIDR" }
+          }
+        ]
+      }
+    }
+  }
+}
