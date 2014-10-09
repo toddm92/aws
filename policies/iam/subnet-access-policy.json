@@ -1,0 +1,34 @@
+{
+  "Statement" : [
+    {
+      "Action" : [
+        "ec2:RunInstances"
+      ],
+      "Effect" : "Allow",
+      "Resource" : [
+        "arn:aws:ec2:us-east-1::image/ami-*",
+        "arn:aws:ec2:us-east-1:XXXXXXXX4557:subnet/subnet-f3558184",
+        "arn:aws:ec2:us-east-1:XXXXXXXX4557:subnet/subnet-a224d2fb",
+        "arn:aws:ec2:us-east-1:XXXXXXXX4557:instance/*",
+        "arn:aws:ec2:us-east-1:XXXXXXXX4557:network-interface/*",
+        "arn:aws:ec2:us-east-1:XXXXXXXX4557:volume/*",
+        "arn:aws:ec2:us-east-1:XXXXXXXX4557:key-pair/*",
+        "arn:aws:ec2:us-east-1:XXXXXXXX4557:security-group/sg-*"
+      ]
+    },
+    {
+      "Action" : [
+        "ec2:RunInstances"
+      ],
+      "Effect" : "Deny",
+      "Resource" : [
+        "arn:aws:ec2:us-east-1:XXXXXXXX4557:subnet/subnet-*"
+      ],
+      "Condition" : {
+        "StringEquals" : {
+          "ec2:Vpc" : "arn:aws:ec2:us-east-1:XXXXXXXX4557:vpc/vpc-4671c623"
+        }
+      }
+    }
+  ]
+}
