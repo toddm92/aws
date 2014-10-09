@@ -1,0 +1,36 @@
+{
+  "Statement" : [
+    {
+      "Effect" : "Allow",
+      "NotAction" : "iam:*",
+      "Resource" : "*"
+    }
+  ],
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Action" : [
+        "iam:*MFADevice",
+        "iam:*AccessKey",
+        "iam:UpdateLoginProfile",
+        "iam:ChangePassword"
+
+      ],
+      "Effect" : "Allow",
+      "Resource" : [
+        "arn:aws:iam::XXXXXXXX7354:user/${aws:username}",
+        "arn:aws:iam::XXXXXXXX7354:mfa/${aws:username}"
+      ]
+    }
+  ],
+  "Statement" : [
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "iam:List*",
+        "iam:Get*"
+      ],
+      "Resource" : "*"
+    }
+  ]
+}
