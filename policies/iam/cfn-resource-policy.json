@@ -2,18 +2,18 @@
     "Version" : "2012-10-17",
     "Statement" : [
       {
-        "Effect" : "Allow",
         "Action" : [
             "cloudformation:*"
         ],
+        "Effect" : "Allow",
         "Resource" : "*"
       },
       {
-        "Effect" : "Deny",
         "Action" : [
             "cloudformation:DeleteStack",
             "cloudformation:UpdateStack"
         ],
+        "Effect" : "Deny",
         "Resource" : "arn:aws:cloudformation:us-west-2:XXXXXXXX2745:stack/*VPC*"
       }
     ]
