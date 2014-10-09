@@ -76,13 +76,15 @@
         "IamInstanceProfile"            : { "Ref" : "iamBastionProfile" },
         "AssociatePublicIpAddress"      : "true",
         "SecurityGroups"                : [ { "Ref" : "ec2BastionSecurityGroup" } ],
-        "UserData"                      : { "Fn::Base64" : { "Fn::Join" : [
-                                            "",
-                                            [ "#!/bin/bash -ex","\n",
+        "UserData"                      : { "Fn::Base64" :
+					    { "Fn::Join" : [
+                                                "",
+                                                [ "#!/bin/bash -ex","\n",
                                                 "service sendmail stop","\n",
                                                 "chkconfig sendmail off","\n",
                                                 "yum update -y","\n" ]
-                                                ] }
+                                               		   ]
+					    }
                                           }
       }
     },
