@@ -1,0 +1,16 @@
+{
+  "Statement" : [
+    {
+      "Effect" : "Deny",
+      "Action" : "Update:Replace",
+      "Principal" : "*",
+      "Resource" : "LogicalResourceId/*NATServer*"
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : "Update:*",
+      "Principal" : "*",
+      "Resource" : "*"
+    }
+  ]
+}
