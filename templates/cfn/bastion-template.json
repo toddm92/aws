@@ -13,7 +13,7 @@
     },
     "PermittedCIDR" : {
         "Type"                          : "String",
-        "Default"                       : "10.150.10.0/24",
+        "Default"                       : "10.79.10.0/24",
         "Description"                   : "Enter the CIDR or IP address to permit SSH from. (Note: Used to create a bastion security group.)",
         "AllowedPattern"                : "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
         "ConstraintDescription"         : "Please enter a valid IP CIDR range of the form x.x.x.x/x."
