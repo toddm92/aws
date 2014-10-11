@@ -13,3 +13,7 @@
   <li> <b>wiki:</b>
     notes, etc.
   </ul>
+
+<hr>
+http://about.me/todd_murchison
+
