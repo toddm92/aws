@@ -43,8 +43,8 @@ check "the aws-cli commands"
 aws ec2 describe-regions --profile $PROFILE > /dev/null 2>&1
 check "profile $PROFILE"
 
-# Check each region..
-# main loop
+# Scan each region..
+# (main loop)
 #
 for rg in ${REGIONS[@]}; do
 
@@ -64,7 +64,7 @@ for rg in ${REGIONS[@]}; do
   printf "Enabled: $status\n"
 done
 #
-# end main loop
+# (end main loop)
 
 echo ""
 echo "Happy trails!"
