@@ -85,6 +85,9 @@
     },
     "Public1AZ3" : {
         "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "02Public1SubnetAZ3" }, "na" ] } ]
+    },
+    "AnyPrivate1Subnet" : {
+        "Fn::Or" : [ { "Condition" : "Private1AZ1" }, { "Condition" : "Private1AZ2" }, { "Condition" : "Private1AZ3" } ]
     }
   },
 
@@ -444,7 +447,7 @@
 						  [
 						    { "Ref" : "OwnerService" },
 						    { "Ref" : "StackEnv" },
-						     "public-route-table",
+						     "public-rtb",
 						    { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
 						  ]
 						]
@@ -456,6 +459,7 @@
 
     "ec2Private1RouteTable" : {
       "Type" : "AWS::EC2::RouteTable",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "VpcId"			: { "Ref" : "ec2VPC" },
         "Tags": [
@@ -479,7 +483,7 @@
 						  [
 						    { "Ref" : "OwnerService" },
 						    { "Ref" : "StackEnv" },
-						     "private-route-table",
+						     "private-rtb",
 						    { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
 						  ]
 						]
@@ -500,6 +504,7 @@
 
     "ec2Pri1DefaultRoute" : {
       "Type" : "AWS::EC2::Route",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "RouteTableId"		: { "Ref" : "ec2Private1RouteTable" },
           "DestinationCidrBlock"	: "0.0.0.0/0",
@@ -641,6 +646,7 @@
 
     "ec2Private1SubnetNetworkAcl" : {
       "Type" : "AWS::EC2::NetworkAcl",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "VpcId"			: { "Ref" : "ec2VPC" },
         "Tags": [
@@ -676,6 +682,7 @@
 
     "ec2Private1SubnetAclEntryIn100" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "NetworkAclId"		: { "Ref" : "ec2Private1SubnetNetworkAcl" },
           "RuleNumber"			: "100",
@@ -687,6 +694,7 @@
     },
     "ec2Private1SubnetAclEntryIn200" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "NetworkAclId"		: { "Ref" : "ec2Private1SubnetNetworkAcl" },
           "RuleNumber"			: "200",
@@ -699,6 +707,7 @@
     },
     "ec2Private1SubnetAclEntryIn300" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "NetworkAclId"		: { "Ref" : "ec2Private1SubnetNetworkAcl" },
           "RuleNumber"			: "300",
@@ -712,6 +721,7 @@
 
     "ec2Private1SubnetAclEntryOut100" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "NetworkAclId"		: { "Ref" : "ec2Private1SubnetNetworkAcl" },
           "RuleNumber"			: "100",
@@ -723,6 +733,7 @@
     },
     "ec2Private1SubnetAclEntryOut200" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "NetworkAclId"		: { "Ref" : "ec2Private1SubnetNetworkAcl" },
           "RuleNumber"			: "200",
@@ -735,6 +746,7 @@
     },
     "ec2Private1SubnetAclEntryOut300" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
+      "Condition" : "AnyPrivate1Subnet",
         "Properties" : {
           "NetworkAclId"		: { "Ref" : "ec2Private1SubnetNetworkAcl" },
           "RuleNumber"			: "300",
