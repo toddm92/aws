@@ -217,7 +217,7 @@ while sub_no != 0:
         print("\nCreating route-table..")
         route_table = conn.create_route_table(vpc.id)
         conn.create_route(route_table.id, '0.0.0.0/0', igw.id)
-        tag_it(route_table.id, tag_tier + str(tag_tier_no) + "-rt")
+        tag_it(route_table.id, tag_tier + str(tag_tier_no) + "-rtb")
 
         print("Creating NACL..")
         network_acl = conn.create_network_acl(vpc.id)
