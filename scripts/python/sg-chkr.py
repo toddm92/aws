@@ -14,7 +14,7 @@ import sys
 # ** Modify these variables as needed **
 REGIONS = ( 'us-east-1',  'eu-west-1',  'ap-northeast-1',
             'us-west-1', 'us-west-2', 'ap-southeast-1',
-            'ap-southeast-2', 'sa-east-1' )
+            'ap-southeast-2', 'sa-east-1', 'eu-central-1' )
 # **
 
 # Make our text pretty
