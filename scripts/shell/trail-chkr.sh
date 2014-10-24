@@ -30,7 +30,7 @@ fi
 
 # Our variables
 #
-REGIONS=("us-east-1" "eu-west-1" "ap-northeast-1" "us-west-1" "us-west-2" "ap-southeast-1" "ap-southeast-2" "sa-east-1") 
+REGIONS=("us-east-1" "eu-west-1" "ap-northeast-1" "us-west-1" "us-west-2" "ap-southeast-1" "ap-southeast-2" "sa-east-1" "eu-central-1") 
 PROFILE=$2
 
 # Test for the aws-cli
