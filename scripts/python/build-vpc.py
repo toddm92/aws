@@ -11,7 +11,7 @@ import boto.vpc
 import boto.ec2
 
 # Default variables
-REGIONS = ( 'us-east-1', 'eu-west-1', 'ap-northeast-1', 'us-west-1', 'us-west-2', 'ap-southeast-1', 'ap-southeast-2', 'sa-east-1' )
+REGIONS = ( 'us-east-1', 'eu-west-1', 'ap-northeast-1', 'us-west-1', 'us-west-2', 'ap-southeast-1', 'ap-southeast-2', 'sa-east-1', 'eu-central-1' )
 THREEAZREGIONS = ( 'us-east-1', 'eu-west-1', 'us-west-2' )
 
 VPC_CIDR =  '10.10.0.0/20'
@@ -34,6 +34,8 @@ def abbr_region(region):
         aregion = 'as1'
     if region == 'ap-southeast-2':
         aregion = 'as2'
+    if region == 'eu-central-1':
+        aregion = 'ec1'
 
     return aregion
    
