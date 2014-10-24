@@ -13,7 +13,8 @@
                                         "arn:aws:iam::086441151436:root",
                                         "arn:aws:iam::388731089494:root",
                                         "arn:aws:iam::284668455005:root",
-                                        "arn:aws:iam::113285607260:root"
+                                        "arn:aws:iam::113285607260:root",
+                                        "arn:aws:iam::035351147821:root"
                                 ]
                         },
                         "Action" : "s3:GetBucketAcl",
@@ -31,7 +32,8 @@
                                         "arn:aws:iam::086441151436:root",
                                         "arn:aws:iam::388731089494:root",
                                         "arn:aws:iam::284668455005:root",
-                                        "arn:aws:iam::113285607260:root"
+                                        "arn:aws:iam::113285607260:root",
+                                        "arn:aws:iam::035351147821:root"
                                 ]
                         },
                         "Action" : "s3:PutObject",
