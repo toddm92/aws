@@ -33,7 +33,7 @@
     "AvailZone" : {
         "Type"                          : "String",
         "Default"                       : "us-east-1a",
-        "AllowedPattern"                : "us-east-1[a-d]|us-west-[1-2a-c]|eu-west-1[a-c]|ap-northeast-1[a-c]|ap-southeast-[1-2a-c]|sa-east-1[a-c]",
+        "AllowedPattern"                : "us-east-1[a-d]|us-west-[1-2a-c]|eu-west-1[a-c]|ap-northeast-1[a-c]|ap-southeast-[1-2a-c]|sa-east-1[a-c]|eu-central-1[a-c]",
         "Description"                   : "Availability zone."
     },
     "PublicSubnet" : {
@@ -60,7 +60,8 @@
         "us-west-2"                     : { "AMI" : "ami-8786c6b7" },
         "ap-southeast-1"                : { "AMI" : "ami-d6e1c584" },
         "ap-southeast-2"                : { "AMI" : "ami-fd4724c7" },
-        "sa-east-1"                     : { "AMI" : "ami-956cc688" }
+        "sa-east-1"                     : { "AMI" : "ami-956cc688" },
+        "eu-central-1"                  : { "AMI" : "ami-b43503a9" }
     }
   },
 
