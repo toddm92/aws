@@ -99,7 +99,7 @@ abbr_reg = abbr_region(region)
 myregion = boto.ec2.get_region(region_name=region)
 try:
     conn = boto.vpc.VPCConnection(profile_name=profile, region=myregion)
-except boto.exception.NoAuthHandlerFound:
+except boto.provider.ProfileNotFoundError:
     print("\nERROR: Please check your profile_name in ~/.boto and try again..\n")
     usage2()
 
