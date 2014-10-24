@@ -101,7 +101,8 @@
         "us-west-2"			: { "AbbrRegion" : "uw2" },
         "ap-southeast-1"		: { "AbbrRegion" : "as1" },
         "ap-southeast-2"		: { "AbbrRegion" : "as2" },
-        "sa-east-1"			: { "AbbrRegion" : "se1" }
+        "sa-east-1"			: { "AbbrRegion" : "se1" },
+        "eu-central-1"			: { "AbbrRegion" : "ec1" }
     }
   },
 
