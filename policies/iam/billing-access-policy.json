@@ -1,0 +1,18 @@
+{
+  "Statement" : [
+    {
+      "Action" : [
+        "aws-portal:View*"
+      ],
+      "Effect" : "Allow",
+      "Resource" : "*"
+    },
+    {
+      "Action" : [
+        "aws-portal:Modify*"
+      ],
+      "Effect" : "Deny",
+      "Resource" : "*"
+    }
+  ]
+}
