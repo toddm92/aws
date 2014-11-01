@@ -4,6 +4,7 @@
 # Requires:
 #  * the aws-cli 
 #  * a valid profile in ~/.aws/config or ${AWS_CONFIG_FILE}
+#  * MacOS `date` command/format
 
 # Usage statement
 #
