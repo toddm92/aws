@@ -67,8 +67,12 @@ for u in ${users[@]}; do
     if [ "$s" == "Active" ]; then
       let "s_no++"
       let "a_key++"
+
+      # Get active key creation date and compare it to today's date
+      #
       kcd=`echo ${status[$s_no]} | sed 's/T/ /' | awk '{print $1}'`
       echo " * Active key $a_key is $(((`date -jf %Y-%m-%d $TODAY +%s` - `date -jf %Y-%m-%d $kcd +%s`)/86400)) days old"
+
       elif [ "$s" == "Inactive" ]; then
         let "i_key++"
         let "s_no++"
@@ -77,6 +81,8 @@ for u in ${users[@]}; do
     fi
   done
 
+  # Report non-active key status
+  #
   if [ $i_key != 0 ]; then
     if [ $i_key = 1 ]; then
       echo " * $i_key inactive key"
