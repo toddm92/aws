@@ -1,0 +1,156 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Deploy a NAT instance with enhanced network capabilities.",
+
+  "Parameters" : {
+
+    "AvailZone" : {
+        "Type"                          : "String",
+        "Default"                       : "us-east-1b",
+        "AllowedPattern"                : "us-east-1[a-e]|us-west-[1-2a-c]|eu-west-1[a-c]|ap-northeast-1[a-c]|ap-southeast-[1-2a-c]|sa-east-1[a-c]|eu-central-1[a-c]",
+        "Description"                   : "Name of the availability-zone."
+    },
+    "PubSubnetId" : {
+        "Type"                          : "String",
+        "Default"                       : "subnet-16c4d73e",
+        "AllowedPattern"                : "subnet-[0-9a-z]*",
+        "Description"                   : "Public subnet Id for AvailZone."
+    },
+    "InstanceType" : {
+        "Type"                          : "String",
+        "Default"                       : "c3.2xlarge",
+        "Description"                   : "NAT instance size. Note: for enhanced networking, choose a c3, r3 or i2 class instance."
+    },
+    "NATSecurityGroup" : {
+        "Type"                          : "String",
+        "Default"                       : "sg-74b25510",
+        "AllowedPattern"                : "sg-[0-9a-z]*",
+        "Description"                   : "NAT security group Id."
+    },
+    "UserKeys" : {
+        "Type"                          : "String",
+        "Default"                       : "my-key",
+        "AllowedPattern"                : "[-0-9a-zA-Z]*",
+        "Description"                   : "Name of your key pair."
+    },
+    "NATName" : {
+        "Type"                          : "String",
+        "Default"                       : "nat-gw-az1",
+        "AllowedPattern"                : "[-a-z0-9]*",
+        "Description"                   : "Instance name (for tagging)."
+    },
+    "OwnerService" : {
+        "Type"                          : "String",
+        "Default"                       : "sharedcloud",
+        "AllowedPattern"                : "[-a-z0-9]*",
+        "Description"                   : "Service name (for tagging)."
+    },
+    "StackEnv" : {
+        "Type"                          : "String",
+        "Default"                       : "dev",
+        "AllowedPattern"                : "[-a-z0-9]*",
+        "Description"                   : "Environment name (for tagging)."
+    }
+  },
+
+  "Mappings" : {
+
+    "RegionNATAMI" : {
+        "us-east-1"                     : { "AMI" : "ami-4c9e4b24" },
+        "eu-west-1"                     : { "AMI" : "ami-3760b040" },
+        "ap-northeast-1"                : { "AMI" : "ami-55c29e54" },
+        "us-west-1"                     : { "AMI" : "ami-2b2b296e" },
+        "us-west-2"                     : { "AMI" : "ami-bb69128b" },
+        "ap-southeast-1"                : { "AMI" : "ami-b082dae2" },
+        "ap-southeast-2"                : { "AMI" : "ami-996402a3" },
+        "sa-east-1"                     : { "AMI" : "ami-b972dba4" },
+        "eu-central-1"                  : { "AMI" : "ami-204c7a3d" }
+    }
+  },
+
+  "Resources" : {
+
+    "ec2IPAddressNAT" : {
+      "Type" : "AWS::EC2::EIP",
+      "Properties" : {
+        "Domain"                        : "vpc",
+        "InstanceId"                    : { "Ref" : "ec2NATInstance" }
+      }
+    },
+
+    "iamNATRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Statement" : [ {
+            "Effect" : "Allow",
+            "Principal" : {
+              "Service" : [ "ec2.amazonaws.com" ]
+            },
+            "Action" : [ "sts:AssumeRole" ]
+          } ]
+        },
+        "Path" : "/",
+        "Policies" : [ {
+          "PolicyName" : "NATMonitor",
+          "PolicyDocument" : {
+            "Statement" : [ {
+              "Effect" : "Allow",
+              "Action" : [
+                        "ec2:CreateRoute",
+                        "ec2:DescribeInstances",
+                        "ec2:ReplaceRoute",
+                        "ec2:StartInstances",
+                        "ec2:StopInstances"
+              ],
+              "Resource" : "*"
+            } ]
+          }
+        } ]
+      }
+    },
+
+    "iamNATMonitorProfile" : {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [ { "Ref": "iamNATRole" } ]
+      }
+    },
+
+    "ec2NATInstance" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "AvailabilityZone"              : { "Ref" : "AvailZone" },
+        "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "AMI" ] },
+        "InstanceType"                  : { "Ref" : "InstanceType" },
+        "Tenancy"                       : "default",
+        "Monitoring"                    : "true",
+        "SourceDestCheck"               : "false",
+        "DisableApiTermination"         : "true",
+        "KeyName"                       : { "Ref" : "UserKeys" },
+        "SecurityGroupIds"              : [ { "Ref" : "NATSecurityGroup" } ],
+        "SubnetId"                      : { "Ref" : "PubSubnetId" },
+        "IamInstanceProfile"            : { "Ref": "iamNATMonitorProfile" },
+        "Tags": [
+            { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName"} },
+            { "Key" : "Owner", "Value" : { "Ref" : "OwnerService" } },
+            { "Key" : "Env",   "Value" : { "Ref" : "StackEnv" } },
+            { "Key" : "Name",  "Value" : { "Ref" : "NATName" } }
+        ]
+      }
+    }
+  },
+
+  "Outputs" : {
+
+    "NatId" : {
+    "Description"                       : "NAT Id",
+    "Value"                             : { "Ref" : "ec2NATInstance" }
+    },
+    "NatIP" : {
+    "Description"                       : "NAT Public IP",
+    "Value"                             : { "Fn::GetAtt" : [ "ec2NATInstance", "PublicIp" ] }
+    }
+  }
+}
