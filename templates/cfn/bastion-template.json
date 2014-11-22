@@ -33,7 +33,7 @@
     "AvailZone" : {
         "Type"                          : "String",
         "Default"                       : "us-east-1a",
-        "AllowedPattern"                : "us-east-1[a-d]|us-west-[1-2a-c]|eu-west-1[a-c]|ap-northeast-1[a-c]|ap-southeast-[1-2a-c]|sa-east-1[a-c]|eu-central-1[a-c]",
+        "AllowedPattern"                : "us-east-1[a-e]|us-west-[1-2a-c]|eu-west-1[a-c]|ap-northeast-1[a-c]|ap-southeast-[1-2a-c]|sa-east-1[a-c]|eu-central-1[a-c]",
         "Description"                   : "Availability zone."
     },
     "PublicSubnet" : {
