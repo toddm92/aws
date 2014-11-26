@@ -50,15 +50,15 @@
   "Mappings" : {
 
     "RegionNATAMI" : {
-        "us-east-1"                     : { "AMI" : "ami-4c9e4b24" },
-        "eu-west-1"                     : { "AMI" : "ami-3760b040" },
-        "ap-northeast-1"                : { "AMI" : "ami-55c29e54" },
-        "us-west-1"                     : { "AMI" : "ami-2b2b296e" },
-        "us-west-2"                     : { "AMI" : "ami-bb69128b" },
-        "ap-southeast-1"                : { "AMI" : "ami-b082dae2" },
-        "ap-southeast-2"                : { "AMI" : "ami-996402a3" },
-        "sa-east-1"                     : { "AMI" : "ami-b972dba4" },
-        "eu-central-1"                  : { "AMI" : "ami-204c7a3d" }
+        "us-east-1"                     : { "HVM" : "ami-4c9e4b24" },
+        "eu-west-1"                     : { "HVM" : "ami-3760b040" },
+        "ap-northeast-1"                : { "HVM" : "ami-55c29e54" },
+        "us-west-1"                     : { "HVM" : "ami-2b2b296e" },
+        "us-west-2"                     : { "HVM" : "ami-bb69128b" },
+        "ap-southeast-1"                : { "HVM" : "ami-b082dae2" },
+        "ap-southeast-2"                : { "HVM" : "ami-996402a3" },
+        "sa-east-1"                     : { "HVM" : "ami-b972dba4" },
+        "eu-central-1"                  : { "HVM" : "ami-204c7a3d" }
     }
   },
 
@@ -116,7 +116,7 @@
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
         "AvailabilityZone"              : { "Ref" : "aAvailZone" },
-        "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "AMI" ] },
+        "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
         "InstanceType"                  : { "Ref" : "cInstanceType" },
         "Tenancy"                       : "default",
         "Monitoring"                    : "true",
