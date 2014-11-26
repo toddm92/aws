@@ -4,48 +4,42 @@
 
   "Parameters" : {
 
-    "AvailZone" : {
+    "aAvailZone" : {
         "Type"                          : "String",
         "Default"                       : "us-east-1b",
         "AllowedPattern"                : "us-east-1[a-e]|us-west-[1-2a-c]|eu-west-1[a-c]|ap-northeast-1[a-c]|ap-southeast-[1-2a-c]|sa-east-1[a-c]|eu-central-1[a-c]",
         "Description"                   : "Name of the availability-zone."
     },
-    "PubSubnetId" : {
-        "Type"                          : "String",
-        "Default"                       : "subnet-16c4d73e",
-        "AllowedPattern"                : "subnet-[0-9a-z]*",
+    "bPubSubnetId" : {
+        "Type"                          : "AWS::EC2::Subnet::Id",
         "Description"                   : "Public subnet Id for AvailZone."
     },
-    "InstanceType" : {
+    "cInstanceType" : {
         "Type"                          : "String",
         "Default"                       : "c3.2xlarge",
         "Description"                   : "NAT instance size. Note: for enhanced networking, choose a c3, r3 or i2 class instance."
     },
-    "NATSecurityGroup" : {
-        "Type"                          : "String",
-        "Default"                       : "sg-74b25510",
-        "AllowedPattern"                : "sg-[0-9a-z]*",
-        "Description"                   : "NAT security group Id."
-    },
-    "UserKeys" : {
-        "Type"                          : "String",
-        "Default"                       : "my-key",
-        "AllowedPattern"                : "[-0-9a-zA-Z]*",
+    "dUserKeys" : {
+        "Type"                          : "AWS::EC2::KeyPair::KeyName",
         "Description"                   : "Name of your key pair."
     },
-    "NATName" : {
+    "eNATSecurityGroup" : {
+        "Type"                          : "AWS::EC2::SecurityGroup::Id",
+        "Description"                   : "NAT security group Id."
+    },
+    "fNATName" : {
         "Type"                          : "String",
         "Default"                       : "nat-gw-az1",
         "AllowedPattern"                : "[-a-z0-9]*",
         "Description"                   : "Instance name (for tagging)."
     },
-    "OwnerService" : {
+    "gOwnerService" : {
         "Type"                          : "String",
         "Default"                       : "sharedcloud",
         "AllowedPattern"                : "[-a-z0-9]*",
         "Description"                   : "Service name (for tagging)."
     },
-    "StackEnv" : {
+    "hStackEnv" : {
         "Type"                          : "String",
         "Default"                       : "dev",
         "AllowedPattern"                : "[-a-z0-9]*",
@@ -121,24 +115,25 @@
     "ec2NATInstance" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
-        "AvailabilityZone"              : { "Ref" : "AvailZone" },
+        "AvailabilityZone"              : { "Ref" : "aAvailZone" },
         "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "AMI" ] },
-        "InstanceType"                  : { "Ref" : "InstanceType" },
+        "InstanceType"                  : { "Ref" : "cInstanceType" },
         "Tenancy"                       : "default",
         "Monitoring"                    : "true",
         "SourceDestCheck"               : "false",
         "DisableApiTermination"         : "true",
-        "KeyName"                       : { "Ref" : "UserKeys" },
-        "SecurityGroupIds"              : [ { "Ref" : "NATSecurityGroup" } ],
-        "SubnetId"                      : { "Ref" : "PubSubnetId" },
+        "KeyName"                       : { "Ref" : "dUserKeys" },
+        "SecurityGroupIds"              : [ { "Ref" : "eNATSecurityGroup" } ],
+        "SubnetId"                      : { "Ref" : "bPubSubnetId" },
         "IamInstanceProfile"            : { "Ref": "iamNATMonitorProfile" },
         "Tags": [
             { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName"} },
-            { "Key" : "Owner", "Value" : { "Ref" : "OwnerService" } },
-            { "Key" : "Env",   "Value" : { "Ref" : "StackEnv" } },
-            { "Key" : "Name",  "Value" : { "Ref" : "NATName" } }
+            { "Key" : "Owner", "Value" : { "Ref" : "gOwnerService" } },
+            { "Key" : "Env",   "Value" : { "Ref" : "hStackEnv" } },
+            { "Key" : "Name",  "Value" : { "Ref" : "fNATName" } }
         ]
-      }
+      },
+      "DependsOn" : [ "iamNATMonitorProfile" ]
     }
   },
 
