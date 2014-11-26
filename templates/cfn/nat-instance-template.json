@@ -35,13 +35,13 @@
     },
     "gOwnerService" : {
         "Type"                          : "String",
-        "Default"                       : "engineering",
+        "Default"                       : "eng",
         "AllowedPattern"                : "[-a-z0-9]*",
         "Description"                   : "Service name (for tagging)."
     },
     "hStackEnv" : {
         "Type"                          : "String",
-        "Default"                       : "dev",
+        "Default"                       : "stage",
         "AllowedPattern"                : "[-a-z0-9]*",
         "Description"                   : "Environment name (for tagging)."
     }
