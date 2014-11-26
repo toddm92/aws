@@ -3,27 +3,27 @@
   "Description" : "Public Facing SSL ELB template.",
 
   "Parameters" : {
-    "SecurityGroupId" : {
-        "Type"					: "CommaDelimitedList",
-        "Default"				: "sg-0123456",
-        "Description"				: "Enter one or more security group ids."
-    },
-    "WebInstancePort" : {
+    "aWebInstancePort" : {
         "Type"					: "Number",
         "Default"				: "8080",
         "Description"				: "Enter the port your web instances will listen on."
     },
-    "WebTarget" : {
+    "bWebTarget" : {
         "Type"					: "String",
         "Default"				: "/index.html",
         "Description"				: "Enter the web instance health check URI."
     },
-    "PublicSubnets" : {
+    "cPublicSubnets" : {
         "Type"					: "CommaDelimitedList",
         "Default"				: "subnet-0123456, subnet-7890123",
         "Description"				: "Enter the subnet ids for your public subnets."
     },
-    "SSLCertARN" : {
+    "dSecurityGroupId" : {
+        "Type"					: "CommaDelimitedList",
+        "Default"				: "sg-0123456",
+        "Description"				: "Enter one or more security group ids."
+    },
+    "eSSLCertARN" : {
         "Type"					: "String",
         "Default"				: "arn:aws:iam::XXX:server-certificate/my.cert.com",
         "Description"				: "Enter the site SSL cerificate ARN."
@@ -57,9 +57,9 @@
     "elbWeb" : {
         "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
         "Properties" : {
-          "Subnets"				: { "Ref" : "PublicSubnets"  },
+          "Subnets"				: { "Ref" : "cPublicSubnets"  },
           "CrossZone"				: "true",
-          "SecurityGroups"			: { "Ref" : "SecurityGroupId"  },
+          "SecurityGroups"			: { "Ref" : "dSecurityGroupId"  },
           "LBCookieStickinessPolicy" : [ {
             "PolicyName"			: "StickyPolicy",
             "CookieExpirationPeriod"		: "300"
@@ -69,18 +69,18 @@
             "HealthyThreshold"			: "2",
             "Interval"				: "10",
             "Target" : {
-              "Fn::Join" : [ "", [ "HTTP", ":", { "Ref" : "WebInstancePort" }, { "Ref" : "WebTarget" } ] ]
+              "Fn::Join" : [ "", [ "HTTP", ":", { "Ref" : "aWebInstancePort" }, { "Ref" : "bWebTarget" } ] ]
             },
             "Timeout"				: "5",
             "UnhealthyThreshold"		: "3"
           },
           "Listeners" : [
           {
-            "InstancePort"			: { "Ref" : "WebInstancePort" },
+            "InstancePort"			: { "Ref" : "aWebInstancePort" },
             "InstanceProtocol"			: "HTTP",
             "LoadBalancerPort"			: "443",
             "Protocol"				: "HTTPS",
-            "SSLCertificateId"			: { "Ref" : "SSLCertARN" },
+            "SSLCertificateId"			: { "Ref" : "eSSLCertARN" },
             "PolicyNames"			: [ "StickyPolicy", "ELBSecurity-Policy-2014-10-15" ]
           } ],
           "ConnectionDrainingPolicy": {
