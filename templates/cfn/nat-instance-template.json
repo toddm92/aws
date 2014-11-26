@@ -35,7 +35,7 @@
     },
     "gOwnerService" : {
         "Type"                          : "String",
-        "Default"                       : "sharedcloud",
+        "Default"                       : "engineering",
         "AllowedPattern"                : "[-a-z0-9]*",
         "Description"                   : "Service name (for tagging)."
     },
