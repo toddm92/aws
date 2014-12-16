@@ -1,0 +1,192 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "CloudWatch and AutoScaling monitor ELB/Instances - HealthyCount.",
+
+  "Parameters" : {
+    "aInstanceType" : {
+        "Type"                          : "String",
+        "Default"                       : "m3.medium",
+        "AllowedValues"                 : ["t2.micro", "m3.medium", "m3.large", "m3.xlarge"],
+        "Description"                   : "Instance size."
+    },
+    "bUserAMI" : {
+        "Type"                          : "String",
+        "Default"                       : "ami-044a2f6d",
+        "AllowedPattern"                : "ami-[a-z0-9]*",
+        "Description"                   : "Your instance image."
+    },
+    "cUserKeys" : {
+        "Type"                          : "AWS::EC2::KeyPair::KeyName",
+        "Description"                   : "Your instance key pair name."
+    },
+    "dSecurityGroup" : {
+        "Type"                          : "AWS::EC2::SecurityGroup::Id",
+        "Description"                   : "Instance security group."
+    },
+    "eELBName" : {
+        "Type"                          : "String",
+        "Default"                       : "MyELB",
+        "AllowedPattern"                : "[-a-zA-Z]*",
+        "Description"                   : "Enter the name of your Load Balancer."
+    },
+    "fAvailZones" : {
+        "Type"                          : "CommaDelimitedList",
+        "Default"                       : "us-east-1a, us-east-1c",
+        "Description"                   : "Enter the availability-zones for your public subnets."
+    },
+    "gSubnets" : {
+        "Type"                          : "CommaDelimitedList",
+        "Default"                       : "subnet-fdbd0991, subnet-f2b90d9e",
+        "Description"                   : "Subnet Ids for your public subnets. (Note: Must match the availability-zones above.)"
+    },
+    "hDesiredCapacity" : {
+        "Type"                          : "Number",
+        "Default"                       : "4",
+        "Description"                   : "Number of instances that should be running."
+    },
+    "iMaxSize" : {
+        "Type"                          : "Number",
+        "Default"                       : "8",
+        "Description"                   : "Maximum size of the autoscale group."
+    },
+    "jMinSize" : {
+        "Type"                          : "Number",
+        "Default"                       : "2",
+        "Description"                   : "Minimum size of the autoscale group."
+    },
+    "kScalingAdjUp" : {
+        "Type"                          : "Number",
+        "Default"                       : "2",
+        "Description"                   : "Number of instances by which to scale up."
+    },
+    "lScalingAdjDn" : {
+        "Type"                          : "Number",
+        "Default"                       : "-2",
+        "Description"                   : "Number of instances by which to scale down."
+    },
+    "mThresholdLow" : {
+        "Type"                          : "Number",
+        "Default"                       : "1",
+        "Description"                   : "Low threshold for CloudWatch alarm."
+    },
+    "nThresholdHigh" : {
+        "Type"                          : "Number",
+        "Default"                       : "2",
+        "Description"                   : "High threshold for CloudWatch alarm."
+    },
+    "oSNSEmail" : {
+        "Type"                          : "String",
+        "Default"                       : "tmurchis@adobe.com",
+        "AllowedPattern"                : "[-a-z0-9]*\\@[-a-z0-9]*\\.[a-z]*",
+        "Description"                   : "Where should alarms be sent."
+    }
+  },
+
+  "Resources" : {
+    "snsASTopic" : {
+      "Type" : "AWS::SNS::Topic",
+      "Properties" : {
+        "TopicName"                     : { "Fn::Join" : ["-", [ { "Ref" : "AWS::StackName"}, "elb-scaling" ] ] },
+        "Subscription"                  : [
+          {
+          "Endpoint"                    : { "Ref" : "oSNSEmail" },
+          "Protocol"                    : "email"
+          }
+        ]
+      }
+    },
+
+    "alcServerlaunch" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "ImageId"                       : { "Ref" : "bUserAMI" },
+        "KeyName"                       : { "Ref" : "cUserKeys" },
+        "InstanceType"                  : { "Ref" : "aInstanceType" },
+        "SecurityGroups"                : [ { "Ref" : "dSecurityGroup" } ]
+      }
+    },
+
+    "asgServergroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones"             : { "Ref" : "fAvailZones" },
+        "VPCZoneIdentifier"             : { "Ref" : "gSubnets" },
+        "Cooldown"                      : "120",
+        "DesiredCapacity"               : { "Ref" : "hDesiredCapacity" },
+        "MaxSize"                       : { "Ref" : "iMaxSize" },
+        "MinSize"                       : { "Ref" : "jMinSize" },
+        "HealthCheckType"               : "ELB",
+        "HealthCheckGracePeriod"        : "180",
+        "LaunchConfigurationName"       : { "Ref" : "alcServerlaunch" },
+        "LoadBalancerNames"             : [ { "Ref" : "eELBName" } ],
+        "NotificationConfiguration" : {
+          "TopicARN"          : { "Ref" : "snsASTopic" },
+          "NotificationTypes" : [ 
+             "autoscaling:EC2_INSTANCE_LAUNCH",
+             "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+             "autoscaling:EC2_INSTANCE_TERMINATE",
+             "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
+          ] 
+        }
+      }
+    },
+
+    "aspServerscaleUP" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+      "AdjustmentType"                  : "ChangeInCapacity",
+      "AutoScalingGroupName"            : { "Ref" : "asgServergroup" },
+      "Cooldown"                        : "300",
+      "ScalingAdjustment"               : { "Ref" : "kScalingAdjUp" }
+      }
+    },
+    "aspServerscaleDN" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+      "AdjustmentType"                  : "ChangeInCapacity",
+      "AutoScalingGroupName"            : { "Ref" : "asgServergroup" },
+      "ScalingAdjustment"               : { "Ref" : "lScalingAdjDn" }
+      }
+    },
+
+    "monServeralarmLow" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties" : {
+      "MetricName"                      : "HealthyHostCount",
+      "Namespace"                       : "AWS/ELB",
+      "Statistic"                       : "Maximum",
+      "Period"                          : "60",
+      "EvaluationPeriods"               : "2",
+      "Threshold"                       : { "Ref" : "mThresholdLow" },
+      "AlarmActions"                    : [ { "Ref" : "aspServerscaleUP" } ],
+      "Dimensions"                      : [ { "Name": "AutoScalingGroupName", "Value": { "Ref": "asgServergroup" } } ],
+      "ComparisonOperator"              : "LessThanOrEqualToThreshold"
+      }
+    },
+    "monServeralarmHigh" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties" : {
+      "MetricName"                      : "HealthyHostCount",
+      "Namespace"                       : "AWS/ELB",
+      "Statistic"                       : "Maximum",
+      "Period"                          : "60",
+      "EvaluationPeriods"               : "2",
+      "Threshold"                       : { "Ref" : "nThresholdHigh" },
+      "AlarmActions"                    : [ { "Ref" : "aspServerscaleDN" } ],
+      "Dimensions"                      : [ { "Name": "AutoScalingGroupName", "Value": { "Ref": "asgServergroup" } } ],
+      "ComparisonOperator"              : "GreaterThanOrEqualToThreshold"
+      }
+    }
+  },
+
+  "Outputs" : {
+    "asGroupName" : {
+      "Description"                     : "Autoscale group name",
+      "Value"                           : { "Ref" : "asgServergroup" }
+    },
+    "snsTopic" : {
+      "Description"                     : "SNS Topic ARN",
+      "Value"                           : { "Ref" : "snsASTopic" }
+    }
+  }
+}
