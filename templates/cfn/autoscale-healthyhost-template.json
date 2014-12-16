@@ -76,7 +76,7 @@
     },
     "oSNSEmail" : {
         "Type"                          : "String",
-        "Default"                       : "tmurchis@adobe.com",
+        "Default"                       : "foo@bar.com",
         "AllowedPattern"                : "[-a-z0-9]*\\@[-a-z0-9]*\\.[a-z]*",
         "Description"                   : "Where should alarms be sent."
     }
