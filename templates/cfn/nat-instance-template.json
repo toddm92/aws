@@ -17,48 +17,42 @@
     "cInstanceType" : {
         "Type"                          : "String",
         "Default"                       : "c3.2xlarge",
-        "Description"                   : "NAT instance size. Note: for enhanced networking, choose a c3, r3 or i2 class instance."
+        "Description"                   : "NAT instance size. Note: For enhanced networking, choose a c3, r3 or i2 class instance."
     },
-    "dUserKeys" : {
+    "dAMIArch" : {
+        "Type"                          : "String",
+        "Default"                       : "HVM",
+        "AllowedPattern"                : "HVM|PV",
+        "Description"                   : "Choose HVM for enhanced networking (instance types; c3, r3 or i2) or PV."
+    },
+    "eUserKeys" : {
         "Type"                          : "AWS::EC2::KeyPair::KeyName",
         "Description"                   : "Name of your key pair."
     },
-    "eNATSecurityGroup" : {
+    "fNATSecurityGroup" : {
         "Type"                          : "AWS::EC2::SecurityGroup::Id",
-        "Description"                   : "NAT security group Id."
+        "Description"                   : "Your NAT security group."
     },
-    "fNATName" : {
+    "gNATName" : {
         "Type"                          : "String",
-        "Default"                       : "nat-gw-az1",
-        "AllowedPattern"                : "[-a-z0-9]*",
+        "Default"                       : "natgw-dev-az1",
+        "AllowedPattern"                : "[-a-zA-Z0-9]*",
         "Description"                   : "Instance name (for tagging)."
-    },
-    "gOwnerService" : {
-        "Type"                          : "String",
-        "Default"                       : "eng",
-        "AllowedPattern"                : "[-a-z0-9]*",
-        "Description"                   : "Service name (for tagging)."
-    },
-    "hStackEnv" : {
-        "Type"                          : "String",
-        "Default"                       : "stage",
-        "AllowedPattern"                : "[-a-z0-9]*",
-        "Description"                   : "Environment name (for tagging)."
     }
   },
 
   "Mappings" : {
 
     "RegionNATAMI" : {
-        "us-east-1"                     : { "HVM" : "ami-4c9e4b24" },
-        "eu-west-1"                     : { "HVM" : "ami-3760b040" },
-        "ap-northeast-1"                : { "HVM" : "ami-55c29e54" },
-        "us-west-1"                     : { "HVM" : "ami-2b2b296e" },
-        "us-west-2"                     : { "HVM" : "ami-bb69128b" },
-        "ap-southeast-1"                : { "HVM" : "ami-b082dae2" },
-        "ap-southeast-2"                : { "HVM" : "ami-996402a3" },
-        "sa-east-1"                     : { "HVM" : "ami-b972dba4" },
-        "eu-central-1"                  : { "HVM" : "ami-204c7a3d" }
+        "us-east-1"                     : { "HVM" : "ami-4c9e4b24", "PV" : "ami-224dc94a" },
+        "eu-west-1"                     : { "HVM" : "ami-3760b040", "PV" : "ami-30913f47" },
+        "ap-northeast-1"                : { "HVM" : "ami-55c29e54", "PV" : "ami-11d6e610" },
+        "us-west-1"                     : { "HVM" : "ami-2b2b296e", "PV" : "ami-838396c6" },
+        "us-west-2"                     : { "HVM" : "ami-bb69128b", "PV" : "ami-030f4133" },
+        "ap-southeast-1"                : { "HVM" : "ami-b082dae2", "PV" : "ami-70a38222" },
+        "ap-southeast-2"                : { "HVM" : "ami-996402a3", "PV" : "ami-39d3be03" },
+        "sa-east-1"                     : { "HVM" : "ami-b972dba4", "PV" : "ami-9122968c" },
+        "eu-central-1"                  : { "HVM" : "ami-204c7a3d", "PV" : "ami-ac380eb1" }
     }
   },
 
@@ -116,21 +110,19 @@
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
         "AvailabilityZone"              : { "Ref" : "aAvailZone" },
-        "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
+        "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, { "Ref" : "dAMIArch" } ] },
         "InstanceType"                  : { "Ref" : "cInstanceType" },
         "Tenancy"                       : "default",
         "Monitoring"                    : "true",
         "SourceDestCheck"               : "false",
         "DisableApiTermination"         : "true",
-        "KeyName"                       : { "Ref" : "dUserKeys" },
-        "SecurityGroupIds"              : [ { "Ref" : "eNATSecurityGroup" } ],
+        "KeyName"                       : { "Ref" : "eUserKeys" },
+        "SecurityGroupIds"              : [ { "Ref" : "fNATSecurityGroup" } ],
         "SubnetId"                      : { "Ref" : "bPubSubnetId" },
         "IamInstanceProfile"            : { "Ref": "iamNATMonitorProfile" },
         "Tags": [
             { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName"} },
-            { "Key" : "Owner", "Value" : { "Ref" : "gOwnerService" } },
-            { "Key" : "Env",   "Value" : { "Ref" : "hStackEnv" } },
-            { "Key" : "Name",  "Value" : { "Ref" : "fNATName" } }
+            { "Key" : "Name",  "Value" : { "Ref" : "gNATName" } }
         ]
       },
       "DependsOn" : [ "iamNATMonitorProfile" ]
