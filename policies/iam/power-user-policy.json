@@ -1,13 +1,11 @@
 {
-  "Statement" : [
-    {
-      "Effect" : "Allow",
-      "NotAction" : "iam:*",
-      "Resource" : "*"
-    }
-  ],
   "Version" : "2012-10-17",
   "Statement" : [
+    {
+      "NotAction" : "iam:*",
+      "Effect" : "Allow",
+      "Resource" : "*"
+    },
     {
       "Action" : [
         "iam:*MFADevice",
@@ -18,18 +16,16 @@
       ],
       "Effect" : "Allow",
       "Resource" : [
-        "arn:aws:iam::XXXXXXXX7354:user/${aws:username}",
-        "arn:aws:iam::XXXXXXXX7354:mfa/${aws:username}"
+        "arn:aws:iam::XXXXXXXX5057:user/${aws:username}",
+        "arn:aws:iam::XXXXXXXX5057:mfa/${aws:username}"
       ]
-    }
-  ],
-  "Statement" : [
+    },
     {
-      "Effect" : "Allow",
       "Action" : [
         "iam:List*",
         "iam:Get*"
       ],
+      "Effect" : "Allow",
       "Resource" : "*"
     }
   ]
