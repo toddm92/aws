@@ -57,7 +57,7 @@
         "Type"                          : "String",
         "Default"                       : "c3.2xlarge",
         "AllowedPattern"                : "c3.large|c3.xlarge|c3.2xlarge|c3.4xlarge|c3.8xlarge|r3.large|r3.xlarge|r3.2xlarge|r3.4xlarge|r3.8xlarge|i2.xlarge|i2.2xlarge|i2.4xlarge|i2.8xlarge|na",
-        "Description"                   : "NAT instance size. Note: Choose a c3, r3 or i2 class instance or 'na' for none."
+        "Description"                   : "NAT instance size. Note: Choose a c3, r3 or i2 class instance or 'na' for no NAT instances."
     },
     "iUserKeys" : {
         "Type"                          : "String",
@@ -70,14 +70,14 @@
         "Default"                       : "eng",
         "Description"                   : "Owner or service name. (For tagging, use lowercase, no spaces, dashes ok.)",
         "AllowedPattern"                : "[-a-z0-9]*",
-        "ConstraintDescription"         : "Must be lowercase, no spaces, dashes ok."
+        "ConstraintDescription"         : "Use lowercase, no spaces, dashes ok."
     },
     "kStackEnv" : {
         "Type"                          : "String",
         "Default"                       : "stage",
         "Description"                   : "Environment name; prod, stage, dev, etc. (For tagging, use lowercase, no spaces, dashes ok.)",
         "AllowedPattern"                : "[-a-z0-9]*",
-        "ConstraintDescription"         : "Must be lowercase, no spaces, dashes ok."
+        "ConstraintDescription"         : "Use lowercase, no spaces, dashes ok."
     }
   },
 
@@ -345,201 +345,6 @@
                                               { "Ref" : "jOwnerService" },
                                               { "Ref" : "kStackEnv" },
                                                 "private-subnet3",
-                                              { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
-                                            ]
-                                          ] }
-          }
-        ]
-      }
-    },
-
-    "ec2NATSecurityGroup" : {
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Condition" : "AnyNATgw",
-        "Properties" : {
-          "GroupDescription"		: "Security group for our NAT instances.",
-          "VpcId"			: {"Ref" : "ec2VPC"},
-        "SecurityGroupIngress"  : [
-          {
-          "IpProtocol"			: "-1",
-          "CidrIp"			: { "Ref" : "aVPCCIDRBlock" }
-          }
-        ],
-        "Tags": [
-          {
-            "Key"                       : "Name",
-            "Value"                     : { "Fn::Join" : [ "-",
-                                            [
-                                              { "Ref" : "jOwnerService" },
-                                              { "Ref" : "kStackEnv" },
-                                                "nat-sg",
-                                              { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
-                                            ]
-                                          ] }
-          }
-        ]
-      }
-    },
-
-    "iamNATRole" : {
-      "Type" : "AWS::IAM::Role",
-      "Condition" : "AnyNATgw",
-        "Properties" : {
-          "AssumeRolePolicyDocument": {
-            "Statement" : [ {
-              "Effect"			: "Allow",
-              "Principal" : {
-                "Service"		: [ "ec2.amazonaws.com" ]
-              },
-              "Action"			: [ "sts:AssumeRole" ]
-            } ]
-          },
-          "Path"			: "/",
-          "Policies" : [ {
-            "PolicyName"		: "NATMonitor",
-            "PolicyDocument" : {
-              "Statement" : [ {
-                "Effect" : "Allow",
-                "Action" : [
-                        "ec2:CreateRoute",
-                        "ec2:DescribeInstances",
-                        "ec2:ReplaceRoute",
-                        "ec2:StartInstances",
-                        "ec2:StopInstances"
-                ],
-                "Resource" : "*"
-              } ]
-            }
-          } ]
-        }
-    },
-    "iamNATMonitorProfile" : {
-      "Type": "AWS::IAM::InstanceProfile",
-      "Condition" : "AnyNATgw",
-      "DependsOn" : [ "iamNATRole" ],
-        "Properties" : {
-          "Path"			: "/",
-          "Roles"			: [ { "Ref": "iamNATRole" } ]
-        }
-    },
-
-    "ec2IPAddressNAT1" : {
-      "Type" : "AWS::EC2::EIP",
-      "Condition" : "NATgwAZ1",
-      "DependsOn" : [ "ec2NATInstanceAZ1" ],
-        "Properties" : {
-          "Domain"			: "vpc",
-          "InstanceId"			: { "Ref" : "ec2NATInstanceAZ1" }
-        }
-    },
-    "ec2IPAddressNAT2" : {
-      "Type" : "AWS::EC2::EIP",
-      "Condition" : "NATgwAZ2",
-      "DependsOn" : [ "ec2NATInstanceAZ2" ],
-        "Properties" : {
-          "Domain"			: "vpc",
-          "InstanceId"			: { "Ref" : "ec2NATInstanceAZ2" }
-        }
-    },
-    "ec2IPAddressNAT3" : {
-      "Type" : "AWS::EC2::EIP",
-      "Condition" : "NATgwAZ3",
-      "DependsOn" : [ "ec2NATInstanceAZ3" ],
-        "Properties" : {
-          "Domain"			: "vpc",
-          "InstanceId"			: { "Ref" : "ec2NATInstanceAZ3" }
-        }
-    },
-
-    "ec2NATInstanceAZ1" : {
-      "Type" : "AWS::EC2::Instance",
-      "Condition" : "NATgwAZ1",
-      "DependsOn" : [ "ec2NATSecurityGroup", "iamNATMonitorProfile" ],
-        "Properties" : {
-          "AvailabilityZone" : { 
-            "Fn::Select"                : [ "0", { "Fn::GetAZs" : "" } ]
-          },
-          "ImageId"			: { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
-          "InstanceType"		: { "Ref" : "hNATInstanceType" },
-          "Monitoring"			: "true",
-          "SourceDestCheck"		: "false",
-          "DisableApiTermination"	: "true",
-          "KeyName"			: { "Ref" : "iUserKeys" },
-          "SecurityGroupIds"		: [ { "Ref" : "ec2NATSecurityGroup" } ],
-          "SubnetId"			: { "Ref" : "ec2Public1SubnetAZ1" },
-          "IamInstanceProfile"		: { "Ref": "iamNATMonitorProfile" },
-        "Tags": [
-          {
-            "Key"                       : "Name",
-            "Value"                     : { "Fn::Join" : [ "-",
-                                            [
-                                              { "Ref" : "jOwnerService" },
-                                              { "Ref" : "kStackEnv" },
-                                                "nat-az1",
-                                              { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
-                                            ]
-                                          ] }
-          }
-        ]
-      }
-    },
-    "ec2NATInstanceAZ2" : {
-      "Type" : "AWS::EC2::Instance",
-      "Condition" : "NATgwAZ2",
-      "DependsOn" : [ "ec2NATSecurityGroup", "iamNATMonitorProfile" ],
-        "Properties" : {
-          "AvailabilityZone" : { 
-            "Fn::Select"                : [ "1", { "Fn::GetAZs" : "" } ]
-          },
-          "ImageId"			: { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
-          "InstanceType"		: { "Ref" : "hNATInstanceType" },
-          "Monitoring"			: "true",
-          "SourceDestCheck"		: "false",
-          "DisableApiTermination"	: "true",
-          "KeyName"			: { "Ref" : "iUserKeys" },
-          "SecurityGroupIds"		: [ { "Ref" : "ec2NATSecurityGroup" } ],
-          "SubnetId"			: { "Ref" : "ec2Public1SubnetAZ2" },
-          "IamInstanceProfile"		: { "Ref": "iamNATMonitorProfile" },
-        "Tags": [
-          {
-            "Key"                       : "Name",
-            "Value"                     : { "Fn::Join" : [ "-",
-                                            [
-                                              { "Ref" : "jOwnerService" },
-                                              { "Ref" : "kStackEnv" },
-                                                "nat-az2",
-                                              { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
-                                            ]
-                                          ] }
-          }
-        ]
-      }
-    },
-    "ec2NATInstanceAZ3" : {
-      "Type" : "AWS::EC2::Instance",
-      "Condition" : "NATgwAZ3",
-      "DependsOn" : [ "ec2NATSecurityGroup", "iamNATMonitorProfile" ],
-        "Properties" : {
-          "AvailabilityZone" : { 
-            "Fn::Select"                : [ "2", { "Fn::GetAZs" : "" } ]
-          },
-          "ImageId"			: { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
-          "InstanceType"		: { "Ref" : "hNATInstanceType" },
-          "Monitoring"			: "true",
-          "SourceDestCheck"		: "false",
-          "DisableApiTermination"	: "true",
-          "KeyName"			: { "Ref" : "iUserKeys" },
-          "SecurityGroupIds"		: [ { "Ref" : "ec2NATSecurityGroup" } ],
-          "SubnetId"			: { "Ref" : "ec2Public1SubnetAZ3" },
-          "IamInstanceProfile"		: { "Ref": "iamNATMonitorProfile" },
-        "Tags": [
-          {
-            "Key"                       : "Name",
-            "Value"                     : { "Fn::Join" : [ "-",
-                                            [
-                                              { "Ref" : "jOwnerService" },
-                                              { "Ref" : "kStackEnv" },
-                                                "nat-az3",
                                               { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
                                             ]
                                           ] }
@@ -958,6 +763,195 @@
         "Properties" : {
           "SubnetId"                    : { "Ref" : "ec2Private1SubnetAZ3" },
           "NetworkAclId"                : { "Ref" : "ec2Private1SubnetNetworkAcl" }
+      }
+    },
+
+    "ec2NATSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Condition" : "AnyNATgw",
+        "Properties" : {
+          "GroupDescription"		: "Security group for our NAT instances.",
+          "VpcId"			: {"Ref" : "ec2VPC"},
+        "SecurityGroupIngress"  : [
+          {
+          "IpProtocol"			: "-1",
+          "CidrIp"			: { "Ref" : "aVPCCIDRBlock" }
+          }
+        ],
+        "Tags": [
+          {
+            "Key"                       : "Name",
+            "Value"                     : { "Fn::Join" : [ "-",
+                                            [
+                                              { "Ref" : "jOwnerService" },
+                                              { "Ref" : "kStackEnv" },
+                                                "nat-sg",
+                                              { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
+                                            ]
+                                          ] }
+          }
+        ]
+      }
+    },
+
+    "iamNATRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Condition" : "AnyNATgw",
+        "Properties" : {
+          "AssumeRolePolicyDocument": {
+            "Statement" : [ {
+              "Effect"			: "Allow",
+              "Principal" : {
+                "Service"		: [ "ec2.amazonaws.com" ]
+              },
+              "Action"			: [ "sts:AssumeRole" ]
+            } ]
+          },
+          "Path"			: "/",
+          "Policies" : [ {
+            "PolicyName"		: "NATMonitor",
+            "PolicyDocument" : {
+              "Statement" : [ {
+                "Effect" : "Allow",
+                "Action" : [
+                        "ec2:CreateRoute",
+                        "ec2:DescribeInstances",
+                        "ec2:ReplaceRoute",
+                        "ec2:StartInstances",
+                        "ec2:StopInstances"
+                ],
+                "Resource" : "*"
+              } ]
+            }
+          } ]
+        }
+    },
+    "iamNATMonitorProfile" : {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Condition" : "AnyNATgw",
+      "DependsOn" : [ "iamNATRole" ],
+        "Properties" : {
+          "Path"			: "/",
+          "Roles"			: [ { "Ref": "iamNATRole" } ]
+        }
+    },
+
+    "ec2IPAddressNAT1" : {
+      "Type" : "AWS::EC2::EIP",
+      "Condition" : "NATgwAZ1",
+      "DependsOn" : [ "ec2NATInstanceAZ1" ],
+        "Properties" : {
+          "Domain"			: "vpc",
+          "InstanceId"			: { "Ref" : "ec2NATInstanceAZ1" }
+        }
+    },
+    "ec2IPAddressNAT2" : {
+      "Type" : "AWS::EC2::EIP",
+      "Condition" : "NATgwAZ2",
+      "DependsOn" : [ "ec2NATInstanceAZ2" ],
+        "Properties" : {
+          "Domain"			: "vpc",
+          "InstanceId"			: { "Ref" : "ec2NATInstanceAZ2" }
+        }
+    },
+    "ec2IPAddressNAT3" : {
+      "Type" : "AWS::EC2::EIP",
+      "Condition" : "NATgwAZ3",
+      "DependsOn" : [ "ec2NATInstanceAZ3" ],
+        "Properties" : {
+          "Domain"			: "vpc",
+          "InstanceId"			: { "Ref" : "ec2NATInstanceAZ3" }
+        }
+    },
+
+    "ec2NATInstanceAZ1" : {
+      "Type" : "AWS::EC2::Instance",
+      "Condition" : "NATgwAZ1",
+      "DependsOn" : [ "ec2NATSecurityGroup", "iamNATMonitorProfile" ],
+        "Properties" : {
+          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ1", "AvailabilityZone" ] },
+          "ImageId"			: { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
+          "InstanceType"		: { "Ref" : "hNATInstanceType" },
+          "Monitoring"			: "true",
+          "SourceDestCheck"		: "false",
+          "DisableApiTermination"	: "true",
+          "KeyName"			: { "Ref" : "iUserKeys" },
+          "SecurityGroupIds"		: [ { "Ref" : "ec2NATSecurityGroup" } ],
+          "SubnetId"			: { "Ref" : "ec2Public1SubnetAZ1" },
+          "IamInstanceProfile"		: { "Ref": "iamNATMonitorProfile" },
+        "Tags": [
+          {
+            "Key"                       : "Name",
+            "Value"                     : { "Fn::Join" : [ "-",
+                                            [
+                                              { "Ref" : "jOwnerService" },
+                                              { "Ref" : "kStackEnv" },
+                                                "nat-az1",
+                                              { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
+                                            ]
+                                          ] }
+          }
+        ]
+      }
+    },
+    "ec2NATInstanceAZ2" : {
+      "Type" : "AWS::EC2::Instance",
+      "Condition" : "NATgwAZ2",
+      "DependsOn" : [ "ec2NATSecurityGroup", "iamNATMonitorProfile" ],
+        "Properties" : {
+          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ2", "AvailabilityZone" ] },
+          "ImageId"			: { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
+          "InstanceType"		: { "Ref" : "hNATInstanceType" },
+          "Monitoring"			: "true",
+          "SourceDestCheck"		: "false",
+          "DisableApiTermination"	: "true",
+          "KeyName"			: { "Ref" : "iUserKeys" },
+          "SecurityGroupIds"		: [ { "Ref" : "ec2NATSecurityGroup" } ],
+          "SubnetId"			: { "Ref" : "ec2Public1SubnetAZ2" },
+          "IamInstanceProfile"		: { "Ref": "iamNATMonitorProfile" },
+        "Tags": [
+          {
+            "Key"                       : "Name",
+            "Value"                     : { "Fn::Join" : [ "-",
+                                            [
+                                              { "Ref" : "jOwnerService" },
+                                              { "Ref" : "kStackEnv" },
+                                                "nat-az2",
+                                              { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
+                                            ]
+                                          ] }
+          }
+        ]
+      }
+    },
+    "ec2NATInstanceAZ3" : {
+      "Type" : "AWS::EC2::Instance",
+      "Condition" : "NATgwAZ3",
+      "DependsOn" : [ "ec2NATSecurityGroup", "iamNATMonitorProfile" ],
+        "Properties" : {
+          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ3", "AvailabilityZone" ] },
+          "ImageId"			: { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
+          "InstanceType"		: { "Ref" : "hNATInstanceType" },
+          "Monitoring"			: "true",
+          "SourceDestCheck"		: "false",
+          "DisableApiTermination"	: "true",
+          "KeyName"			: { "Ref" : "iUserKeys" },
+          "SecurityGroupIds"		: [ { "Ref" : "ec2NATSecurityGroup" } ],
+          "SubnetId"			: { "Ref" : "ec2Public1SubnetAZ3" },
+          "IamInstanceProfile"		: { "Ref": "iamNATMonitorProfile" },
+        "Tags": [
+          {
+            "Key"                       : "Name",
+            "Value"                     : { "Fn::Join" : [ "-",
+                                            [
+                                              { "Ref" : "jOwnerService" },
+                                              { "Ref" : "kStackEnv" },
+                                                "nat-az3",
+                                              { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AbbrRegion" ] }
+                                            ]
+                                          ] }
+          }
+        ]
       }
     }
   },
