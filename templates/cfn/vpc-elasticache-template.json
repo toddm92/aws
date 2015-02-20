@@ -473,6 +473,15 @@
       "Description"                     : "VPC Id",
       "Value"                           : { "Ref" : "ec2VPC" }
     },
+    "TestIPAZ1" : {
+      "Description"                     : "Test Instance in AZ1 Public IP",
+      "Value"                           : { "Fn::Join" : [ " ",
+                                            [
+                                              { "Ref" : "ec2TestInstanceAZ1" }, "is",
+                                              { "Fn::GetAtt" : [ "ec2TestInstanceAZ1", "PublicIp" ] }
+                                            ]
+                                          ] }
+    },
     "NatIPAZ1" : {
       "Description"                     : "NAT-AZ1 Public IP",
       "Value"                           : { "Fn::Join" : [ " ",
