@@ -449,7 +449,7 @@
     "cfnElastiCache" : {
       "Type" : "AWS::CloudFormation::Stack",
         "Properties" : {
-          "TemplateURL"                 : "https://s3.amazonaws.com/cloud-eng/CFN/templates/todd/elasticache-template.json",
+          "TemplateURL"                 : "https://s3-us-west-2.amazonaws.com/toddm92/public/templates/cfn/elasticache-template.json",
           "Parameters" : {
             "aCacheNodeType"            : "cache.t1.micro",
             "bNumberOfCacheNodes"       : "3",
