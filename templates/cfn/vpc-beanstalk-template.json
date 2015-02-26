@@ -500,7 +500,7 @@
         "Properties" : {
           "ApplicationName"             : { "Ref" : "ebApplication" },
           "Description"                 : "AWS Elastic Beanstalk Environment running Python Sample Application",
-          "SolutionStackName"           : "Amazon Linux running Python",
+          "SolutionStackName"           : "64bit Amazon Linux running Python",
           "VersionLabel"                : "Initial Version",
           "OptionSettings" : [
             { "Namespace"  : "aws:ec2:vpc",
