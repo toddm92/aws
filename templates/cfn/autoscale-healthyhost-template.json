@@ -25,19 +25,19 @@
     },
     "eELBName" : {
         "Type"                          : "String",
-        "Default"                       : "MyELB",
+        "Default"                       : "myELB",
         "AllowedPattern"                : "[-a-zA-Z]*",
         "Description"                   : "Enter the name of your Load Balancer."
     },
     "fAvailZones" : {
         "Type"                          : "CommaDelimitedList",
         "Default"                       : "us-east-1a, us-east-1c",
-        "Description"                   : "Enter the availability-zones for your public subnets."
+        "Description"                   : "Enter the availability-zones for your private subnets."
     },
     "gSubnets" : {
         "Type"                          : "CommaDelimitedList",
-        "Default"                       : "subnet-fdbd0991, subnet-f2b90d9e",
-        "Description"                   : "Subnet Ids for your public subnets. (Note: Must match the availability-zones above.)"
+        "Default"                       : "subnet-53226b3e, subnet-47266f2a",
+        "Description"                   : "Subnet Ids for your private subnets. (Note: Must match the availability-zones above.)"
     },
     "hDesiredCapacity" : {
         "Type"                          : "Number",
