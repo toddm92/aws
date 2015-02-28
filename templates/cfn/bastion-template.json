@@ -69,6 +69,7 @@
 
     "asBastionlaunch" : {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "DependsOn" : [ "iamBastionProfile", "ec2BastionSecurityGroup" ],
         "Metadata" : {
         "Comment" : "Setup iptables and disable unwanted services",
           "AWS::CloudFormation::Init" : {
@@ -122,8 +123,7 @@
             ]
           }
         }
-      },
-      "DependsOn" : [ "iamBastionProfile", "ec2BastionSecurityGroup" ]
+      }
     },
     "asBastiongroup" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",

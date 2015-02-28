@@ -109,6 +109,7 @@
 
     "ec2NATInstance" : {
       "Type" : "AWS::EC2::Instance",
+      "DependsOn" : [ "iamNATMonitorProfile" ],
       "Properties" : {
         "AvailabilityZone"              : { "Ref" : "aAvailZone" },
         "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, { "Ref" : "dAMIArch" } ] },
@@ -125,8 +126,7 @@
             { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName"} },
             { "Key" : "Name",  "Value" : { "Ref" : "gNATName" } }
         ]
-      },
-      "DependsOn" : [ "iamNATMonitorProfile" ]
+      }
     }
   },
 

@@ -56,6 +56,7 @@
 
     "elbWeb" : {
         "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+        "DependsOn": [ "S3LoggingBucketPolicy" ],
         "Properties" : {
           "Subnets"				: { "Ref" : "cPublicSubnets"  },
           "CrossZone"				: "true",
@@ -382,8 +383,7 @@
               ]
             }
           ]
-        },
-        "DependsOn": "S3LoggingBucketPolicy"
+        }
       }
     }
 }
