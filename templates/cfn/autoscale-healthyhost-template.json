@@ -103,6 +103,7 @@
         "KeyName"                       : { "Ref" : "cUserKeys" },
         "InstanceType"                  : { "Ref" : "aInstanceType" },
         "SecurityGroups"                : [ { "Ref" : "dSecurityGroup" } ],
+        "AssociatePublicIpAddress"	: "false",
         "UserData" : {
           "Fn::Base64" : {
             "Fn::Join" : [ "",
@@ -144,6 +145,14 @@
         "ResourceSignal" : {
         "Count"				: { "Ref" : "hDesiredCapacity" },
         "Timeout"			: "PT5M"
+        }
+      },
+      "UpdatePolicy" : {
+        "AutoScalingRollingUpdate" : {
+          "MinInstancesInService"	: { "Ref" : "jMinSize" }, 
+          "MaxBatchSize"		: "2",
+          "PauseTime"			: "PT2M",
+          "WaitOnResourceSignals"	: "true"
         }
       }
     },
