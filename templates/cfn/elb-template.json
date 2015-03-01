@@ -385,5 +385,12 @@
           ]
         }
       }
+    },
+
+    "Outputs" : {
+      "URL" : {
+        "Description" : "The external URL.",
+        "Value" :  { "Fn::Join" : [ "", [ "https://", { "Fn::GetAtt" : [ "elbWeb", "DNSName" ] } ] ] }
+      }
     }
 }
