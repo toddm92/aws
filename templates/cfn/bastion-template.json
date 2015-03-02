@@ -82,12 +82,39 @@
                       "/sbin/iptables -P INPUT DROP\n",
                       "/sbin/iptables -P FORWARD DROP\n",
                       "/sbin/iptables -P OUTPUT ACCEPT\n",
-                      "/sbin/iptables -A INPUT -p tcp --dport 22 -j ACCEPT\n",
+                      "/sbin/iptables -A INPUT -p tcp --dport 22 -s ", { "Ref" : "gPermitCIDR" }, " -j ACCEPT\n",
                       "/sbin/iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT\n",
                       "/sbin/iptables -A INPUT -i lo -j ACCEPT\n",
                       "/sbin/service iptables save\n" ]
                     ]
               } } },
+              "files" : {
+                "/etc/cfn/cfn-hup.conf" : {
+                  "content" : { "Fn::Join" : [ "", [
+                    "[main]\n",
+                    "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                    "region=", { "Ref" : "AWS::Region" }, "\n"
+                  ] ] },
+                  "mode"    : "000400",
+                  "owner"   : "root",
+                  "group"   : "root"
+                },
+                "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
+                  "content": { "Fn::Join" : [ "", [
+                    "[cfn-auto-reloader-hook]\n",
+                    "triggers=post.update\n",
+                    "path=Resources.asBastionlaunch.Metadata.AWS::CloudFormation::Init\n",
+                    "action=/opt/aws/bin/cfn-init -v ",
+                    " --stack ", { "Ref" : "AWS::StackName" },
+                    " --resource asBastionlaunch ",
+                    " --region ", { "Ref" : "AWS::Region" }, "\n",
+                    "runas=root\n"
+                  ] ] },
+                  "mode"    : "000400",
+                  "owner"   : "root",
+                  "group"   : "root"
+                }
+              },
               "services" : {
                 "sysvinit" : {
                   "sendmail" : {
@@ -97,6 +124,11 @@
                   "iptables" : {
                     "enabled" : "true",
                     "ensureRunning" : "true"
+                  },
+                  "cfn-hup" : {
+                    "enabled" : "true",
+                    "ensureRunning" : "true",
+                    "files" : [ "/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf" ]
               } } }
             }
           }
@@ -119,7 +151,8 @@
               "# Work on Metadata.\n",
               "/opt/aws/bin/cfn-init -v",
               " --stack ", { "Ref" : "AWS::StackName" },
-              " --resource asBastionlaunch\n" ]
+              " --resource asBastionlaunch",
+              " --region ", { "Ref" : "AWS::Region" }, "\n" ]
             ]
           }
         }
