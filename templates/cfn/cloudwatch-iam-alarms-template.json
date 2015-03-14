@@ -1,0 +1,159 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "AWS CloudTrail and IAM API Activity Alarms for CloudWatch Logs",
+
+  "Parameters" : {
+      "aLogGroupName" : {
+        "Type"                          : "String",
+        "Default"                       : "CloudTrail/DefaultLogGroup",
+        "Description"                   : "Enter the CloudWatch Logs log group name."
+      },
+      "bSNSEmail" : {
+        "Type"                          : "String",
+        "Default"                       : "foo@bar.com",
+        "Description"                   : "Email address to notify when an API activity has triggered an alarm"
+      },
+    "cPeriod" : {
+        "Type"                          : "String",
+        "Default"                       : "300",
+        "AllowedValues"                 : [ "60", "120", "180", "240", "300", "600" ],
+        "Description"                   : "Alarm period."
+    }
+  },
+
+  "Resources" : {
+          
+    "AlarmNotificationTopic" : {
+      "Type" : "AWS::SNS::Topic",
+      "Properties" : {
+        "TopicName"                     : { "Ref" : "AWS::StackName" },
+        "Subscription" : [
+          {
+            "Endpoint"                  : { "Ref": "bSNSEmail" },
+            "Protocol"                  : "email"
+          }
+        ]
+      }
+    },
+
+    "CloudTrailChangesMetricFilter" : {
+      "Type" : "AWS::Logs::MetricFilter",
+      "Properties" : {
+        "LogGroupName"                  : { "Ref" : "aLogGroupName" },
+        "FilterPattern"                 : "{ ($.eventName = CreateTrail) || ($.eventName = UpdateTrail) || ($.eventName = DeleteTrail) || ($.eventName = StartLogging) || ($.eventName = StopLogging) }",
+        "MetricTransformations" : [
+          {
+          "MetricNamespace"             : "CloudTrailMetrics",
+          "MetricName"                  : "CloudTrailEventCount",
+          "MetricValue"                 : "1"
+          }
+        ]
+      }
+    },
+    "CloudTrailChangesAlarm" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties" : {
+        "AlarmName"                     : "CloudTrailChanges",
+        "AlarmDescription"              : "Alarms when an API call is made to create, update or delete a CloudTrail trail, or to start or stop logging to a trail.",
+        "AlarmActions"                  : [ { "Ref" : "AlarmNotificationTopic" } ],
+        "MetricName"                    : "CloudTrailEventCount",
+        "Namespace"                     : "CloudTrailMetrics",
+        "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods"             : "1",
+        "Period"                        : { "Ref" : "cPeriod" },
+        "Statistic"                     : "Sum",
+        "Threshold"                     : "1"
+      }
+    },
+
+    "ConsoleSignInFailuresMetricFilter" : {
+      "Type" : "AWS::Logs::MetricFilter",
+      "Properties" : {
+        "LogGroupName"                  : { "Ref" : "aLogGroupName" },
+        "FilterPattern"                 : "{ ($.eventName = ConsoleLogin) && ($.errorMessage = \"Failed authentication\") }",
+        "MetricTransformations" : [
+          {
+          "MetricNamespace"             : "CloudTrailMetrics",
+          "MetricName"                  : "ConsoleSignInFailureCount",
+          "MetricValue"                 : "1"
+          }
+        ]
+      }
+    },
+    "ConsoleSignInFailuresAlarm" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties" : {
+        "AlarmName"                     : "CloudTrailConsoleSignInFailures",
+        "AlarmDescription"              : "Alarms when an unauthenticated API call is made to sign into the console.",
+        "AlarmActions"                  : [ { "Ref" : "AlarmNotificationTopic" } ],
+        "MetricName"                    : "ConsoleSignInFailureCount",
+        "Namespace"                     : "CloudTrailMetrics",
+        "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods"             : "1",
+        "Period"                        : { "Ref" : "cPeriod" },
+        "Statistic"                     : "Sum",
+        "Threshold"                     : "3"
+      }
+    },
+
+    "AuthorizationFailuresMetricFilter" : {
+      "Type" : "AWS::Logs::MetricFilter",
+      "Properties" : {
+        "LogGroupName"                  : { "Ref" : "aLogGroupName" },
+        "FilterPattern"                 : "{ ($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\") }",
+        "MetricTransformations" : [
+          {
+          "MetricNamespace"             : "CloudTrailMetrics",
+          "MetricName"                  : "AuthorizationFailureCount",
+          "MetricValue"                 : "1"
+          }
+        ]
+      }
+    },
+    "AuthorizationFailuresAlarm" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties" : {
+        "AlarmName"                     : "CloudTrailAuthorizationFailures",
+        "AlarmDescription"              : "Alarms when an unauthorized API call is made.",
+        "AlarmActions"                  : [ { "Ref" : "AlarmNotificationTopic" } ],
+        "MetricName"                    : "AuthorizationFailureCount",
+        "Namespace"                     : "CloudTrailMetrics",
+        "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods"             : "1",
+        "Period"                        : { "Ref" : "cPeriod" },
+        "Statistic"                     : "Sum",
+        "Threshold"                     : "1"
+      }
+    },
+
+    "IAMPolicyChangesMetricFilter" : {
+      "Type" : "AWS::Logs::MetricFilter",
+      "Properties" : {
+        "LogGroupName"                  : { "Ref" : "aLogGroupName" },
+        "FilterPattern"                 : "{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}",
+        "MetricTransformations" : [
+          {
+          "MetricNamespace"             : "CloudTrailMetrics",
+          "MetricName"                  : "IAMPolicyEventCount",
+          "MetricValue"                 : "1"
+          }
+        ]
+      }
+    },
+    "IAMPolicyChangesAlarm" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties" : {
+        "AlarmName"                     : "CloudTrailIAMPolicyChanges",
+        "AlarmDescription"              : "Alarms when an API call is made to change an IAM policy.",
+        "AlarmActions"                  : [ { "Ref" : "AlarmNotificationTopic" } ],
+        "MetricName"                    : "IAMPolicyEventCount",
+        "Namespace"                     : "CloudTrailMetrics",
+        "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods"             : "1",
+        "Period"                        : { "Ref" : "cPeriod" },
+        "Statistic"                     : "Sum",
+        "Threshold"                     : "1"
+      }
+    }
+  }
+}
