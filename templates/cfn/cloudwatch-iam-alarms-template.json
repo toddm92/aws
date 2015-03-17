@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "AWS CloudTrail and IAM API Activity Alarms for CloudWatch Logs",
+  "Description" : "Create CloudTrail and IAM API Activity Alarms for CloudWatch Logs",
 
   "Parameters" : {
       "aLogGroupName" : {
@@ -11,13 +11,25 @@
       "bSNSEmail" : {
         "Type"                          : "String",
         "Default"                       : "foo@bar.com",
-        "Description"                   : "Email address to notify when an API activity has triggered an alarm"
+        "Description"                   : "Email address to notify when an API activity has triggered an alarm."
       },
-    "cPeriod" : {
+      "cAlarmPeriod" : {
         "Type"                          : "String",
         "Default"                       : "300",
         "AllowedValues"                 : [ "60", "120", "180", "240", "300", "600" ],
         "Description"                   : "Alarm period."
+      },
+      "dGlobalServices" : {
+        "Type"                          : "String",
+        "Default"                       : "Y",
+        "AllowedValues"                 : [ "Y", "N" ],
+        "Description"                   : "Enter 'Y' to create Alarms for both CT and Global IAM services. Enter 'N' for CloudTrail Alarms only."
+    }
+  },
+
+  "Conditions" : {
+    "IAMServices" : {
+      "Fn::Equals" : [ { "Ref" : "dGlobalServices" }, "Y" ]
     }
   },
 
@@ -60,7 +72,7 @@
         "Namespace"                     : "CloudTrailMetrics",
         "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
         "EvaluationPeriods"             : "1",
-        "Period"                        : { "Ref" : "cPeriod" },
+        "Period"                        : { "Ref" : "cAlarmPeriod" },
         "Statistic"                     : "Sum",
         "Threshold"                     : "1"
       }
@@ -68,6 +80,7 @@
 
     "ConsoleSignInFailuresMetricFilter" : {
       "Type" : "AWS::Logs::MetricFilter",
+      "Condition" : "IAMServices",
       "Properties" : {
         "LogGroupName"                  : { "Ref" : "aLogGroupName" },
         "FilterPattern"                 : "{ ($.eventName = ConsoleLogin) && ($.errorMessage = \"Failed authentication\") }",
@@ -82,6 +95,7 @@
     },
     "ConsoleSignInFailuresAlarm" : {
       "Type" : "AWS::CloudWatch::Alarm",
+      "Condition" : "IAMServices",
       "Properties" : {
         "AlarmName"                     : "CloudTrailConsoleSignInFailures",
         "AlarmDescription"              : "Alarms when an unauthenticated API call is made to sign into the console.",
@@ -90,7 +104,7 @@
         "Namespace"                     : "CloudTrailMetrics",
         "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
         "EvaluationPeriods"             : "1",
-        "Period"                        : { "Ref" : "cPeriod" },
+        "Period"                        : { "Ref" : "cAlarmPeriod" },
         "Statistic"                     : "Sum",
         "Threshold"                     : "3"
       }
@@ -98,6 +112,7 @@
 
     "AuthorizationFailuresMetricFilter" : {
       "Type" : "AWS::Logs::MetricFilter",
+      "Condition" : "IAMServices",
       "Properties" : {
         "LogGroupName"                  : { "Ref" : "aLogGroupName" },
         "FilterPattern"                 : "{ ($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\") }",
@@ -112,6 +127,7 @@
     },
     "AuthorizationFailuresAlarm" : {
       "Type" : "AWS::CloudWatch::Alarm",
+      "Condition" : "IAMServices",
       "Properties" : {
         "AlarmName"                     : "CloudTrailAuthorizationFailures",
         "AlarmDescription"              : "Alarms when an unauthorized API call is made.",
@@ -120,7 +136,7 @@
         "Namespace"                     : "CloudTrailMetrics",
         "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
         "EvaluationPeriods"             : "1",
-        "Period"                        : { "Ref" : "cPeriod" },
+        "Period"                        : { "Ref" : "cAlarmPeriod" },
         "Statistic"                     : "Sum",
         "Threshold"                     : "1"
       }
@@ -128,6 +144,7 @@
 
     "IAMPolicyChangesMetricFilter" : {
       "Type" : "AWS::Logs::MetricFilter",
+      "Condition" : "IAMServices",
       "Properties" : {
         "LogGroupName"                  : { "Ref" : "aLogGroupName" },
         "FilterPattern"                 : "{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}",
@@ -142,6 +159,7 @@
     },
     "IAMPolicyChangesAlarm" : {
       "Type" : "AWS::CloudWatch::Alarm",
+      "Condition" : "IAMServices",
       "Properties" : {
         "AlarmName"                     : "CloudTrailIAMPolicyChanges",
         "AlarmDescription"              : "Alarms when an API call is made to change an IAM policy.",
@@ -150,7 +168,7 @@
         "Namespace"                     : "CloudTrailMetrics",
         "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
         "EvaluationPeriods"             : "1",
-        "Period"                        : { "Ref" : "cPeriod" },
+        "Period"                        : { "Ref" : "cAlarmPeriod" },
         "Statistic"                     : "Sum",
         "Threshold"                     : "1"
       }
