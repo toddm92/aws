@@ -172,6 +172,38 @@
         "Statistic"                     : "Sum",
         "Threshold"                     : "1"
       }
+    },
+
+    "IAMUserChangesMetricFilter" : {
+      "Type" : "AWS::Logs::MetricFilter",
+      "Condition" : "IAMServices",
+      "Properties" : {
+        "LogGroupName"                  : { "Ref" : "aLogGroupName" },
+        "FilterPattern"                 : "{($.eventName=DeleteUser)||($.eventName=CreateUser)||($.eventName=RemoveUserFromGroup)||($.eventName=AddUserToGroup)||($.eventName=DeleteRole)||($.eventName=CreateRole)}",
+        "MetricTransformations" : [
+          {
+          "MetricNamespace"             : "CloudTrailMetrics",
+          "MetricName"                  : "IAMUserEventCount",
+          "MetricValue"                 : "1"
+          }
+        ]
+      }
+    },
+    "IAMUserChangesAlarm" : {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Condition" : "IAMServices",
+      "Properties" : {
+        "AlarmName"                     : "CloudTrailIAMUserChanges",
+        "AlarmDescription"              : "Alarms when an API call is made to modify an IAM User or Role.",
+        "AlarmActions"                  : [ { "Ref" : "AlarmNotificationTopic" } ],
+        "MetricName"                    : "IAMUserEventCount",
+        "Namespace"                     : "CloudTrailMetrics",
+        "ComparisonOperator"            : "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods"             : "1",
+        "Period"                        : { "Ref" : "cAlarmPeriod" },
+        "Statistic"                     : "Sum",
+        "Threshold"                     : "1"
+      }
     }
   }
 }
