@@ -24,7 +24,11 @@
       "Resource" : [
         "arn:aws:iam::XXXXXXXX5057:user/${aws:username}",
         "arn:aws:iam::XXXXXXXX5057:mfa/${aws:username}"
-      ]
+      ],
+      "Condition": {
+        "Bool" : { "aws:SecureTransport" : "true" },
+        "Null" : { "aws:MultiFactorAuthAge" : "false" }
+      }
     },
     {
       "Sid": "ViewReadOnlyOtherUserInfo",
