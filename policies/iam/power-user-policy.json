@@ -7,12 +7,18 @@
       "Resource" : "*"
     },
     {
+      "Sid": "AllowUserToManageTheirOwnCreds",
       "Action" : [
-        "iam:*MFADevice",
-        "iam:*AccessKey",
+        "iam:CreateVirtualMFADevice",
+        "iam:DeleteVirtualMFADevice",
+        "iam:EnableMFADevice",
+        "iam:DeactivateMFADevice",
+        "iam:ResyncMFADevice",
+        "iam:CreateAccessKey",
+        "iam:UpdateAccessKey",
+        "iam:DeleteAccessKey",
         "iam:UpdateLoginProfile",
         "iam:ChangePassword"
-
       ],
       "Effect" : "Allow",
       "Resource" : [
@@ -21,6 +27,7 @@
       ]
     },
     {
+      "Sid": "ViewReadOnlyOtherUserInfo",
       "Action" : [
         "iam:List*",
         "iam:Get*"
