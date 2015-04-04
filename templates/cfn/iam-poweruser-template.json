@@ -1,0 +1,63 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Creates an IAM Power User Group and Inline Policy.",
+
+  "Resources" : {
+
+    "iamPowerUser" : {
+      "Type" : "AWS::IAM::Group"
+  },
+
+  "iamPowerUserPolicy" : {
+    "Type" : "AWS::IAM::Policy",
+    "DependsOn" : [ "iamPowerUser" ],
+      "Properties" : {
+        "PolicyName" : "PowerUserPolicy",
+        "Groups" : [ { "Ref" : "iamPowerUser" } ],
+        "PolicyDocument" : {
+          "Version" : "2012-10-17",
+          "Statement" : [
+            {
+              "NotAction" : "iam:*",
+              "Effect" : "Allow",
+              "Resource" : "*"
+            },
+            {
+              "Sid": "AllowUserToManageTheirOwnCreds",
+              "Action" : [
+                "iam:CreateVirtualMFADevice",
+                "iam:DeleteVirtualMFADevice",
+                "iam:EnableMFADevice",
+                "iam:DeactivateMFADevice",
+                "iam:ResyncMFADevice",
+                "iam:CreateAccessKey",
+                "iam:UpdateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:UpdateLoginProfile",
+                "iam:ChangePassword"
+              ],
+              "Effect" : "Allow",
+              "Resource" : [
+                { "Fn::Join" : [ "", [ "arn:aws:iam::", { "Ref": "AWS::AccountId" } ,":user/${aws:username}" ] ] },
+                { "Fn::Join" : [ "", [ "arn:aws:iam::", { "Ref": "AWS::AccountId" } ,":mfa/${aws:username}" ] ] }
+              ],
+              "Condition": {
+                "Bool" : { "aws:SecureTransport" : "true" },
+                "Null" : { "aws:MultiFactorAuthAge" : "false" }
+              }
+            },
+            {
+              "Sid": "ViewReadOnlyOtherUserInfo",
+              "Action" : [
+                "iam:List*",
+                "iam:Get*"
+              ],
+              "Effect" : "Allow",
+              "Resource" : "*"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
