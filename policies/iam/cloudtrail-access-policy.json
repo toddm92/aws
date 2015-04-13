@@ -4,7 +4,8 @@
     {
       "Action" : [
         "cloudtrail:DescribeTrails",
-        "cloudtrail:GetTrailStatus"
+        "cloudtrail:GetTrailStatus",
+        "cloudtrail:LookupEvents"
       ],
       "Effect" : "Allow",
       "Resource" : "*"
