@@ -47,6 +47,18 @@
                                         "s3:x-amz-acl" : "bucket-owner-full-control"
                                 }
                         }
+                },
+                {
+                        "Sid": "EnableMFADelete",
+                        "Effect": "Deny",
+                        "Principal": "*",
+                        "Action": "s3:Delete*",
+                        "Resource": "arn:aws:s3:::cloudtrail-logs/*",
+                          "Condition": {
+                            "Null": {
+                              "aws:MultiFactorAuthAge": "true"
+                            }
+                          }
                 }
         ]
 }
