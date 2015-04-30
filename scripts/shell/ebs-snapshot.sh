@@ -22,7 +22,7 @@
 #
 # snapshot retention period
 #
-RETENTION=1
+RETENTION=3
 #
 # EBS volume tag key/value pair
 #
@@ -114,12 +114,12 @@ done
 for vol in ${volumes[@]}; do
 
   echo "Finding snapshots for EBS volume, $vol..."
-  declare -a snapshots=(`aws ec2 describe-snapshots --profile $PROFILE --region $REGION --output json --query Snapshots[*].[SnapshotId,StartTime] --filters "Name=status,Values=completed" "Name=volume-id,Values=$vol" | grep -A1 snap | awk -F\" '{print $2}'`)
+  declare -a snapshots=(`aws ec2 describe-snapshots --profile $PROFILE --region $REGION --output json --query Snapshots[*].[SnapshotId,StartTime] --filters "Name=status,Values=completed" "Name=description,Values=\"Automated snapshot\"" "Name=volume-id,Values=$vol" | grep -A1 snap | awk -F\" '{print $2}'`)
 
   p_no=0  # position in the array
-  s_no=0  # loop counter
+  c_no=0  # loop counter
 
-  while [ $((${#snapshots[@]} / 2)) -gt $s_no ]; do
+  while [ ${#snapshots[@]} -gt $c_no ]; do
     
     snapid=${snapshots[$p_no]}
     let "p_no++"
@@ -133,7 +133,7 @@ for vol in ${volumes[@]}; do
       echo "$snapid has been spared"
     fi
 
-    let "s_no++"
+    c_no=$[c_no + 2]
   done
 echo ""
 done
