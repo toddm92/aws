@@ -47,7 +47,7 @@ check "profile $PROFILE"
 
 # Grab our IAM users
 #
-declare -a users=(`aws iam list-users --profile $PROFILE | grep UserName | sort | awk -F\" '{print $4}'`)
+declare -a users=(`aws iam list-users --profile $PROFILE --output json | grep UserName | sort | awk -F\" '{print $4}'`)
 
 # (main loop)
 #
@@ -56,7 +56,7 @@ for u in ${users[@]}; do
 
   # Get the user's key(s) status and creation date for each
   #
-  declare -a status=(`aws iam list-access-keys --profile $PROFILE --user-name $u | grep -A1 Status | awk -F\" '{print $4}'`)
+  declare -a status=(`aws iam list-access-keys --profile $PROFILE --user-name $u --output json --query AccessKeyMetadata[*].[Status,CreateDate] | grep -A1 Active | awk -F\" '{print $2}'`)
 
   i_key=0  # no. of inactive keys
   a_key=0  # no. of active keys
