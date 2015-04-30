@@ -30,7 +30,7 @@ fi
 
 # Our variables
 #
-REGIONS=("us-east-1" "eu-west-1" "ap-northeast-1" "us-west-1" "us-west-2" "ap-southeast-1" "ap-southeast-2" "sa-east-1" "eu-central-1") 
+REGIONS=("us-east-1" "eu-west-1" "ap-northeast-1" "us-west-1" "us-west-2" "ap-southeast-1" "ap-southeast-2" "sa-east-1") 
 PROFILE=$2
 
 # Test for the aws-cli
@@ -43,18 +43,18 @@ check "the aws-cli commands"
 aws ec2 describe-regions --profile $PROFILE > /dev/null 2>&1
 check "profile $PROFILE"
 
-# Scan each region..
-# (main loop)
+# Check each region..
+# main loop
 #
 for rg in ${REGIONS[@]}; do
 
   status=False
   printf "\nChecking $rg...\n"
-  name=`aws cloudtrail describe-trails --profile $PROFILE --region $rg | grep \"Name\": | awk -F': "' '{print $2}' | sed s/\",//`
+  name=`aws cloudtrail describe-trails --profile $PROFILE --region $rg --output json | grep \"Name\": | awk -F\" '{print $4}'`
 
   if [ "$name" != "" ]; then
     printf "CloudTrail Name: $name\n"
-    logging=`aws cloudtrail get-trail-status --name $name --profile $PROFILE --region $rg | grep IsLogging | awk '{print $2}' | sed s/,//`
+    logging=`aws cloudtrail get-trail-status --name $name --profile $PROFILE --region $rg --output json | grep IsLogging | awk '{print $2}' | sed s/,//`
 
     if [ $logging == "true" ]; then
       status=True
@@ -64,7 +64,7 @@ for rg in ${REGIONS[@]}; do
   printf "Enabled: $status\n"
 done
 #
-# (end main loop)
+# end main loop
 
 echo ""
 echo "Happy trails!"
