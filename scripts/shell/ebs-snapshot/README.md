@@ -9,12 +9,12 @@ period/date and remove them.
 Can be run from cron once a day, or as desired.
 
 <p>
-EBS volume snapshot creation requirement:
+<b>EBS volume snapshot creation requirement:</b>
 <ul>
  <li> EBS volumes assigned the TAG key/value pair; "Autosnap/True"
 </ul>
 
-Snapshot removal requirements: 
+<b>Snapshot removal requirements:</b>
 <ul>
  <li> Snapshots taken from a volume assigned the TAG key/value pair; "Autosnap/True"
  <li> Status equals "complete"
@@ -22,7 +22,7 @@ Snapshot removal requirements:
  <li> Is older than the specified retention period/date
 </ul>
 
-To Do:
+<b>To Do:</b>
 <ul>
  <li> Schedule and run from Data Pipeline with an ec2 Role policy
  <li> Modify to handle/use the `date` command from other linux flavors
