@@ -8,17 +8,24 @@ period/date and remove them.
 <p>
 Can be run from cron once a day, or as desired.
 
-<p>
-<b>EBS volume snapshot creation requirement:</b>
+<b>Requirements:</b>
 <ul>
- <li> EBS volumes assigned the TAG key/value pair; "Autosnap/True"
+ <li> The awscli  (`sudo pip install awscli`)
+ <li> A valid profile in ~/.aws/config or ${AWS_CONFIG_FILE} with the appropriate API keys
+ <li> MacOS `date` command/format
 </ul>
 
-<b>Snapshot removal requirements:</b>
+<p>
+<b>An EBS volume snapshot will be created if:</b>
 <ul>
- <li> Snapshots taken from a volume assigned the TAG key/value pair; "Autosnap/True"
- <li> Status equals "complete"
- <li> Has the description TAG; "Automated snapshot"
+ <li> The EBS volume is assigned the TAG key/value pair; "Autosnap/True"
+</ul>
+
+<b>A snapshot will be removed only after meeting all of the following conditions:</b>
+<ul>
+ <li> The snapshot was taken from a volume assigned the above TAG key/value pair
+ <li> It's status equals "complete"
+ <li> Has the description; "Automated snapshot"
  <li> Is older than the specified retention period/date
 </ul>
 
