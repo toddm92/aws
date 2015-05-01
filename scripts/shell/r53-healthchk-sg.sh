@@ -57,7 +57,7 @@ check "VPC-Id $VPCId"
 
 # Grab the AWS health check IP CIDRs
 #
-R53CIDRS=`curl https://ip-ranges.amazonaws.com/ip-ranges.json 2> /dev/null | grep -B2 ROUTE53_HEALTHCHECKS | grep prefix | awk -F': "' '{print $2}' | sed -e s/\",//`
+R53CIDRS=`curl https://ip-ranges.amazonaws.com/ip-ranges.json 2> /dev/null | grep -B2 ROUTE53_HEALTHCHECKS | grep prefix | awk -F\" '{print $4}'`
 
 # Create our security group and record the Id
 #
