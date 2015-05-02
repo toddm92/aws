@@ -29,6 +29,12 @@ Can be run from cron once a day, or as desired.
  <li> Is older than the specified retention period/date
 </ul>
 
+<b>Usage:</b>
+<p>
+<code>
+ebs-snapshot.sh --profile \<profile_name\> [ --region \<region_name\> ]
+</code>
+
 <b>To Do:</b>
 <ul>
  <li> Schedule and run from Data Pipeline with an ec2 Role policy
