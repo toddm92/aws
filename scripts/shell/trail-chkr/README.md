@@ -1,4 +1,4 @@
-### CloudTrail Status
+### Check CloudTrail Status
 
 <p>
 This BASH script checks the name and status of CloudTrail in all regions of your AWS account.
