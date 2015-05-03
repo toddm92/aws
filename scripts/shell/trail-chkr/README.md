@@ -17,7 +17,7 @@ trail-chkr.sh --profile \<profile_name\>
 
 <b>Output:</b>
 <p>
-<code>
+<text>
 ./trail-chkr.sh --profile eng
 
 Checking us-east-1...
@@ -52,7 +52,7 @@ Checking sa-east-1...
 Enabled: False
 
 Happy trails!
-</code>
+</text>
 
 <b>To Do:</b>
 <ul>
