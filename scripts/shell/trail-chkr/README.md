@@ -11,9 +11,9 @@ This BASH script checks the name and status of CloudTrail in all regions of your
 
 <b>Usage:</b>
 <p>
-<code>
+<pre>
 trail-chkr.sh --profile \<profile_name\>
-</code>
+</pre>
 
 <b>Output:</b>
 <p>
