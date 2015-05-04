@@ -22,7 +22,7 @@
 #
 # snapshot retention period
 #
-RETENTION=3
+RETENTION=7
 #
 # EBS volume tag key/value pair
 #
@@ -100,42 +100,47 @@ check "region $REGION"
 #
 declare -a volumes=(`aws ec2 describe-volumes --profile $PROFILE --region $REGION --output json --filters Name=tag:$KEY,Values=$VALUE --query Volumes[*].[VolumeId] | grep vol- | awk -F\" '{print $2}'`)
 
+if [ ${#volumes[@]} -eq 0 ]; then
+  echo "No volumes qualify for a snapshot."
+else
+  # Create a snapshot for each EBS volume
+  #
+  for vol in ${volumes[@]}; do
+    echo "Creating snapshot for EBS volume, $vol..."
+    aws ec2 create-snapshot --volume-id $vol --description "Automated snapshot" --profile $PROFILE --region $REGION
+    echo ""
+  done
 
-# Create a snapshot for each EBS volume
-#
-for vol in ${volumes[@]}; do
-  echo "Creating snapshot for EBS volume, $vol..."
-  echo "aws ec2 create-snapshot --volume-id $vol --description "Automated snapshot" --profile $PROFILE --region $REGION"
-  echo ""
-done
+fi
 
 # Find and remove snapshots older than our retention period
 #
-for vol in ${volumes[@]}; do
+declare -a snapshots=(`aws ec2 describe-snapshots --profile $PROFILE --region $REGION --output json --query Snapshots[*].[SnapshotId,StartTime] --filters "Name=status,Values=completed" "Name=description,Values=\"Automated snapshot\"" | grep -A1 snap | awk -F\" '{print $2}'`)
 
-  echo "Finding snapshots for EBS volume, $vol..."
-  declare -a snapshots=(`aws ec2 describe-snapshots --profile $PROFILE --region $REGION --output json --query Snapshots[*].[SnapshotId,StartTime] --filters "Name=status,Values=completed" "Name=description,Values=\"Automated snapshot\"" "Name=volume-id,Values=$vol" | grep -A1 snap | awk -F\" '{print $2}'`)
+if [ ${#snapshots[@]} -eq 0 ]; then
+  echo "No snapshots to remove."
+  exit 0
+fi
 
-  p_no=0  # position in the array
-  c_no=0  # loop counter
+p_no=0  # position in the array
+c_no=0  # loop counter
 
-  while [ ${#snapshots[@]} -gt $c_no ]; do
+while [ ${#snapshots[@]} -gt $c_no ]; do
     
-    snapid=${snapshots[$p_no]}
-    let "p_no++"
-    created=${snapshots[$p_no]}
-    let "p_no++"
-    date=`echo $created | sed 's/T/ /' | awk '{print $1}'`
+  snapid=${snapshots[$p_no]}
+  let "p_no++"
+  created=${snapshots[$p_no]}
+  let "p_no++"
+  date=`echo $created | sed 's/T/ /' | awk '{print $1}'`
 
-    if [ $(((`date -jf %Y-%m-%d $TODAY +%s` - `date -jf %Y-%m-%d $date +%s`)/86400)) -ge $RETENTION ]; then
-      echo "aws ec2 delete-snapshot --snapshot-id $snapid --region $REGION"
-    else
-      echo "$snapid has been spared"
-    fi
+  if [ $(((`date -jf %Y-%m-%d $TODAY +%s` - `date -jf %Y-%m-%d $date +%s`)/86400)) -ge $RETENTION ]; then
+    aws ec2 delete-snapshot --snapshot-id $snapid --profile $PROFILE --region $REGION
+    echo "$snapid has been deleted."
+  ##else
+  ##  echo "$snapid has been spared."  # for testing purposes
+  fi
 
-    c_no=$[c_no + 2]
-  done
-echo ""
+  c_no=$[c_no + 2]
 done
 #
 exit 0
