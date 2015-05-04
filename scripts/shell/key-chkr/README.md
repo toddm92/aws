@@ -1,8 +1,8 @@
-### Check IAM Users API Key Age
+### Check IAM Users API Keys
 
 <p>
 This BASH script checks the age of the API keys for all your IAM users.
-It's good a practice to rotate these keys every 60 to 90 days.
+It's good practice to rotate these keys every 60 to 90 days.
 
 <p>
 Can be run from cron once a day, or as desired.
