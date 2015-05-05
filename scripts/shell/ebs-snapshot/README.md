@@ -62,5 +62,5 @@ snap-48c1ec12 has been deleted.
 <b>To Do:</b>
 <ul>
  <li> Schedule and run from Data Pipeline with an ec2 Role policy
- <li> Modify to handle/use the `date` command from other linux flavors
+ <li> Modify to handle/use the `date` command from other linux flavors (`date -d"$TODAY" +%s` AWS Linux)
 </ul>
