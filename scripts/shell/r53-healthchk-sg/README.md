@@ -21,7 +21,7 @@ r53-healthchk-sg.sh --profile \<profile_name\>
 <b>Output:</b>
 <p>
 <pre>
-./r53-healthchk-sg.sh --profile end
+./r53-healthchk-sg.sh --profile eng
 
 Enter your VPC-Id: vpc-45338a20
 Creating R53 health check security group ................ done!
@@ -29,7 +29,7 @@ Security group Id: sg-60938505
 </pre>
 
 The R53 Security Group
-</pre>
+<pre>
 aws ec2 describe-security-groups --group-ids sg-60938505 --profile eng
 {
     "SecurityGroups": [
