@@ -63,8 +63,8 @@ R53CIDRS=`curl https://ip-ranges.amazonaws.com/ip-ranges.json 2> /dev/null | gre
 #
 echo -n "Creating R53 health check security group "
 
-aws ec2 create-security-group --group-name $NAME --description $DESC --vpc-id $VPCId --profile $PROFILE > /tmp/sg-id.$$
-SGId=`cat /tmp/sg-id.$$ | grep GroupId | awk -F': "' '{print $2}' | sed -e s/\"//`
+aws ec2 create-security-group --group-name $NAME --description $DESC --vpc-id $VPCId --profile $PROFILE --output json > /tmp/sg-id.$$
+SGId=`cat /tmp/sg-id.$$ | grep GroupId | awk -F\" '{print $4}'`
 
 # Populate the security group
 #
