@@ -117,11 +117,6 @@ fi
 #
 declare -a snapshots=(`aws ec2 describe-snapshots --profile $PROFILE --region $REGION --output json --query Snapshots[*].[SnapshotId,StartTime] --filters "Name=status,Values=completed" "Name=description,Values=\"Automated snapshot\"" | grep -A1 snap | awk -F\" '{print $2}'`)
 
-if [ ${#snapshots[@]} -eq 0 ]; then
-  echo "No snapshots to remove."
-  exit 0
-fi
-
 p_no=0  # position in the array
 c_no=0  # loop counter
 
