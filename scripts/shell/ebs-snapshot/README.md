@@ -66,8 +66,9 @@ snap-48c1ec12 has been deleted.
 
 <hr>
 
-### Data Pipeline Version
-<b>ebs-snapshots-dp.sh</b>
+<b> Running from Data Pipeline </b>
+<p>
+ebs-snapshots-dp.sh
 
 <b>Requirements:</b>
 <ul>
