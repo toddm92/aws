@@ -61,6 +61,85 @@ snap-48c1ec12 has been deleted.
 
 <b>To Do:</b>
 <ul>
- <li> Schedule and run from Data Pipeline with an ec2 Role policy
  <li> Modify to handle/use the `date` command from other linux flavors (`date -d"$TODAY" +%s` AWS Linux)
 </ul>
+
+<hr>
+
+### Data Pipeline Version
+<b>ebs-snapshots-dp.sh</b>
+
+Pipeline Template (runs once a day)
+<pre>
+{
+  "objects": [
+    {
+      "id": "DefaultSchedule",
+      "name": "Every 1 day",
+      "startAt": "FIRST_ACTIVATION_DATE_TIME",
+      "type": "Schedule",
+      "period": "1 days"
+    },
+    {
+      "id": "ShellCommandActivityObj",
+      "scriptUri": "s3://bucket/ebs-snapshot-dp.sh",
+      "name": "ShellCommandActivityObj",
+      "runsOn": {
+        "ref": "EC2ResourceObj"
+      },
+      "type": "ShellCommandActivity",
+      "stage": "true"
+    },
+    {
+      "id": "Default",
+      "scheduleType": "cron",
+      "failureAndRerunMode": "CASCADE",
+      "schedule": {
+        "ref": "DefaultSchedule"
+      },
+      "name": "Default",
+      "pipelineLogUri": "s3://bucket/logs/",
+      "role": "DataPipelineDefaultRole",
+      "resourceRole": "EC2AutosnapRole"
+    },
+    {
+      "terminateAfter": "20 Minutes",
+      "instanceType": "t1.micro",
+      "id": "EC2ResourceObj",
+      "imageId": "ami-ff527ecf",
+      "name": "EC2ResourceObj",
+      "securityGroupIds": "sg-01234567",
+      "subnetId": "subnet-01234567",
+      "type": "Ec2Resource"
+    }
+  ]
+}
+</pre>
+
+EC2 Resource Role
+<pre>
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AutosnapPermissions",
+            "Action": [
+                "ec2:CreateSnapshot",
+                "ec2:DeleteSnapshot",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeRegions",
+                "ec2:DescribeSnapshotAttribute",
+                "ec2:DescribeSnapshots",
+                "ec2:DescribeTags",
+                "ec2:DescribeVolumeAttribute",
+                "ec2:DescribeVolumeStatus",
+                "ec2:DescribeVolumes",
+                "datapipeline:*",
+                "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+}
+</pre>
