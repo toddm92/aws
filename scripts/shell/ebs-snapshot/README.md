@@ -61,7 +61,7 @@ snap-48c1ec12 has been deleted.
 
 <b>To Do:</b>
 <ul>
- <li> Modify to handle/use the `date` command from other linux flavors (`date -d"$TODAY" +%s` AWS Linux)
+ <li> Modify to handle/use the `date` command from other linux flavors (Note: `date -d"$TODAY" +%s` AWS Linux)
 </ul>
 
 <hr>
@@ -79,8 +79,8 @@ snap-48c1ec12 has been deleted.
 <code>
 ebs-snapshot-dp.sh [ --region \<region_name\> ]
 </code>
-<p>
-Note: Pass --region as a ShellCommandActivityObj parameter, or modify the script's DREGION variable.
+
+<i>Note: Pass --region as a ShellCommandActivityObj parameter, or modify the script's DREGION variable.</i>
 
 Pipeline Template (runs once a day)
 <pre>
