@@ -69,6 +69,19 @@ snap-48c1ec12 has been deleted.
 ### Data Pipeline Version
 <b>ebs-snapshots-dp.sh</b>
 
+<b>Requirements:</b>
+<ul>
+ <li> AWS AMI with the awscli installed
+</ul>
+
+<b>Usage:</b>
+<p>
+<code>
+ebs-snapshot-dp.sh [ --region \<region_name\> ]
+</code>
+<p>
+Note: Pass --region as a ShellCommandActivityObj parameter, or modify the script's DREGION variable.
+
 Pipeline Template (runs once a day)
 <pre>
 {
