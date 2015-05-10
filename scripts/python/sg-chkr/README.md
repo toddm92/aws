@@ -18,10 +18,10 @@ sg-chkr.py --profile \<profile_name\>
 <b>Output:</b>
 <p>
 <pre>
-./sg-chkr.py --profile awseng
+./sg-chkr.py --profile eng
 
 Region: us-east-1
-Number of SGs: 90 
+Number of SGs: 29 
 
 WARNING: Open security group >>> launch-wizard-1 ( sg-6b72f506 )
 Proto: tcp 	Ports: 22 	 22 	Source: [0.0.0.0/0] 
@@ -38,15 +38,9 @@ Proto: tcp 	Ports: 8080 	 8080 	Source: [0.0.0.0/0]
 WARNING: Open security group >>> rds-launch-wizard ( sg-5062e234 )
 Proto: tcp 	Ports: 3306 	 3306 	Source: [0.0.0.0/0] 
 
-WARNING: Open security group >>> gateway-elb ( sg-85111ae0 )
-Proto: tcp 	Ports: 80 	 80 	Source: [0.0.0.0/0] 
-
-WARNING: Open security group >>> launch-wizard-4 ( sg-5dfde938 )
-Proto: tcp 	Ports: 22 	 22 	Source: [0.0.0.0/0] 
-
 
 Region: eu-west-1
-Number of SGs: 1 
+Number of SGs: 7 
 
 
 Region: ap-northeast-1
@@ -59,6 +53,12 @@ Number of SGs: 1
 
 Region: us-west-2
 Number of SGs: 6 
+
+WARNING: Open security group >>> launch-wizard-1 ( sg-5dfde938 )
+Proto: tcp 	Ports: 22 	 22 	Source: [0.0.0.0/0] 
+
+WARNING: Open security group >>> gateway-elb ( sg-85111ae0 )
+Proto: tcp 	Ports: 80 	 80 	Source: [0.0.0.0/0] 
 
 
 Region: ap-southeast-1
