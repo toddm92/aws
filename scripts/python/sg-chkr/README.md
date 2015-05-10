@@ -5,7 +5,7 @@ This Python script checks your AWS security groups in all regions for "open" (i.
 
 <b>Requirements:</b>
 <ul>
- <li> python version 2.7 / boto version
+ <li> Tested w/ python version 2.7 / boto version 2.34
  <li> A valid profile in ~/.aws/config or ${AWS_CONFIG_FILE} with the appropriate API keys
 </ul>
 
