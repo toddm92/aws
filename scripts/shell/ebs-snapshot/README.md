@@ -58,4 +58,5 @@ snap-35097d70 has been deleted.
 <b>To Do:</b>
 <ul>
  <li> Modify to handle/use the `date` command from other linux flavors (`date -d"$TODAY" +%s` AWS Linux)
+ <li> Add the necessary logic to run from either cmd-line (i.e. --profile) or Data Pipeline.
 </ul>
