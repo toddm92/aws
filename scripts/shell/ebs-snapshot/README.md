@@ -64,6 +64,7 @@ snap-35097d70 has been deleted.
 <b>Notes:</b>
 
 AWS Linux Date
+<p>
 <code>
 `date -d"$TODAY" +%s`
 </code>
