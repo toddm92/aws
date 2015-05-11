@@ -53,10 +53,6 @@ Creating snapshot for EBS volume, vol-953dcf85...
 
 snap-e29174a0 has been deleted.
 snap-35097d70 has been deleted.
-snap-b93d55e0 has been deleted.
-snap-acaa78f4 has been deleted.
-snap-1c212547 has been deleted.
-snap-48c1ec12 has been deleted.
 </pre>
 
 <b>To Do:</b>
