@@ -57,6 +57,41 @@ snap-35097d70 has been deleted.
 
 <b>To Do:</b>
 <ul>
- <li> Modify to handle/use the `date` command from other linux flavors (`date -d"$TODAY" +%s` AWS Linux)
+ <li> Modify to handle/use the `date` command from other linux flavors
  <li> Add the necessary logic to run from either cmd-line (i.e. --profile) or Data Pipeline.
 </ul>
+
+<b>Notes:</b>
+
+AWS Linux Date
+<pre>
+`date -d"$TODAY" +%s`
+</pre>
+
+EC2 Resource Role Policy (Tested w/ Data Pipeline)
+<pre>
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AutosnapPermissions",
+            "Action": [
+                "ec2:CreateSnapshot",
+                "ec2:DeleteSnapshot",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeRegions",
+                "ec2:DescribeSnapshotAttribute",
+                "ec2:DescribeSnapshots",
+                "ec2:DescribeTags",
+                "ec2:DescribeVolumeAttribute",
+                "ec2:DescribeVolumeStatus",
+                "ec2:DescribeVolumes",
+                "datapipeline:*",
+                "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+}
+</pre>
