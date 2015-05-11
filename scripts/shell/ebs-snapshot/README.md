@@ -64,9 +64,9 @@ snap-35097d70 has been deleted.
 <b>Notes:</b>
 
 AWS Linux Date
-<pre>
+<code>
 `date -d"$TODAY" +%s`
-</pre>
+</code>
 
 EC2 Resource Role Policy (Tested w/ Data Pipeline)
 <pre>
