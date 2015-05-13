@@ -13,7 +13,7 @@ import boto.ec2
 import sys
 
 # ** Modify these variables as needed **
-PROFILE = 'toddm92'  # (from your ~/.boto)
+PROFILE = 'eng'  # (from your ~/.boto)
 REGIONS = ( 'us-east-1',  'eu-west-1',  'ap-northeast-1',
             'us-west-1', 'us-west-2', 'ap-southeast-1',
             'ap-southeast-2', 'sa-east-1', 'eu-central-1' )
