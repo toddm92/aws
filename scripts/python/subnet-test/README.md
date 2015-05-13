@@ -1,6 +1,7 @@
 ### AZ Subnet Test
 
 <p>
+It's not uncommon in older AWS accounts (i.e. with EC2-Classic) to come across a "depreciated zone" where VPC subnets are not permitted.
 This Python script tests creating a VPC subnet in each availability-zone for every AWS region.
 
 <b>Requirements:</b>
@@ -130,7 +131,7 @@ Test region eu-west-1 [yes]? (enter 'q' to quit) q
 
 </pre>
 
-<b>To Do:</b>
+<b>Notes:</b>
 <ul>
  <li> ...
 </ul>
