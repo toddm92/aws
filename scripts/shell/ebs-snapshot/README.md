@@ -6,13 +6,13 @@ a TAG key/value pair. It will look for snapshots older than a retention
 period/date and remove them.
 
 <p>
-Can be run from cron once a day, or as desired.
+Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
 
 <b>Requirements:</b>
 <ul>
  <li> The awscli  (`sudo pip install awscli`)
- <li> A valid profile in ~/.aws/config or ${AWS_CONFIG_FILE} with the appropriate API keys
- <li> MacOS `date` command/format
+ <li> A valid profile in ~/.aws/config or ${AWS_CONFIG_FILE} with the appropriate API keys (ebs-snapshot.sh)
+ <li> MacOS `date` command/format (ebs-snapshot.sh)
 </ul>
 
 <p>
@@ -32,6 +32,10 @@ Can be run from cron once a day, or as desired.
 <p>
 <code>
 ebs-snapshot.sh --profile \<profile_name\> [ --region \<region_name\> ]
+</code>
+<p>
+<code>
+ebs-snapshot-dp.sh [ --region \<region_name\> ]
 </code>
 
 <b>Output:</b>
