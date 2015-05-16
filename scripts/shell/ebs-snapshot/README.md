@@ -63,12 +63,6 @@ snap-35097d70 has been deleted.
 
 <b>Notes:</b>
 
-AWS Linux Date
-<p>
-<code>
-date -d"$TODAY" +%s
-</code>
-
 Data Pipeline Workflow
 ![EBS Snapshot Diagram](https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/ebs-autosnap-flow.jpg)
 
@@ -99,3 +93,9 @@ EC2 Resource Role Policy (Tested w/ Data Pipeline)
     ]
 }
 </pre>
+
+AWS Linux Date
+<p>
+<code>
+date -d"$TODAY" +%s
+</code>
