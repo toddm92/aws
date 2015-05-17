@@ -24,8 +24,8 @@ Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
 <b>A Snapshot will be removed only after meeting all of the following:</b>
 <ul>
  <li> The snapshot status equals "complete"
- <li> It has the description, "Automated snapshot"
- <li> It's older than the specified retention period/date
+ <li> Snapshot has the description, "Automated snapshot"
+ <li> The snapshot is older than the specified retention period/date
 </ul>
 
 <b>Usage:</b>
@@ -62,7 +62,7 @@ snap-35097d70 has been deleted.
 <b>To Do:</b>
 <ul>
  <li> Modify to handle/use the `date` command from other linux flavors
- <li> Add the necessary logic to run from either cmd-line (i.e. --profile) or Data Pipeline.
+ <li> Add the necessary logic to run from either cmd-line (i.e. --profile) or Data Pipeline
 </ul>
 
 <b>Notes:</b>
