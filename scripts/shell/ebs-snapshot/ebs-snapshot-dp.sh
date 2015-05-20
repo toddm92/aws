@@ -59,6 +59,9 @@ if [ "$REGION" == "" ]; then
   REGION=$DREGION
 fi
 
+echo "Region: $REGION"
+echo ""
+
 # Test for aws-cli installation
 #
 which aws > /dev/null 2>&1
