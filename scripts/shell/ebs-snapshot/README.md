@@ -1,8 +1,8 @@
 ### Automated EBS Volume Snapshots
 
 <p>
-This BASH script will automatically create a snapshot of EBS volumes mathcing
-a TAG key/value pair. It will look for snapshots older than a retention
+This BASH script will create a snapshot of EBS volumes mathcing
+a specific TAG key/value pair. It will look for snapshots older than a retention
 period/date and remove them.
 
 <p>
@@ -21,7 +21,7 @@ Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
  <li> The EBS volume is assigned the TAG key/value pair; "Autosnap/True"
 </ul>
 
-<b>A Snapshot will be removed only after meeting all of the following:</b>
+<b>A Snapshot will be removed only after meeting the following criteria:</b>
 <ul>
  <li> The snapshot status equals "complete"
  <li> Snapshot has the description, "Automated snapshot"
