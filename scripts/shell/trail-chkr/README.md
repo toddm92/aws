@@ -11,13 +11,13 @@ This BASH script checks the name and status of CloudTrail in all regions of your
 
 <b>Usage:</b>
 <p>
-<code>
+<pre>
 Usage: $0 -p <profile_name> [ -d ]
 
   -p  : profile name (in ~/.aws/config)
   -d  : (optional) delete trails
   
-</code>
+</pre>
 
 <b>Output:</b>
 <p>
