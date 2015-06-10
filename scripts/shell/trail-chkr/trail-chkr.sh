@@ -1,7 +1,11 @@
 #!/bin/bash
 #
 # Checks CloudTrail status in all regions 
+#
+# added option (-d) to delete trails - TM
+#
 # Requires:
+#
 #  * the aws-cli 
 #  * a valid profile in ~/.aws/config or ${AWS_CONFIG_FILE}
 
@@ -9,8 +13,13 @@
 #
 usage ()
 {
+  echo ""
   echo " Checks CloudTrail status in all regions."
-  echo " >> Usage: $0 --profile <profile_name>"
+  echo " >> Usage: $0 -p <profile_name> [ -d ]"
+  echo ""
+  echo " >>  -p  : profile name (in ~/.aws/config)"
+  echo " >>  -d  : (optional) delete trails"
+  echo ""
   exit 1
 }
 
@@ -22,16 +31,26 @@ if [ $? -ne 0 ]; then
 fi
 }
 
-# Test for args
-#
-if [[ $# -ne 2 || $1 != "--profile" ]] ; then
-  usage 
-fi
+delete=0
 
-# Our variables
+while getopts "p:dh" opt; do
+  case $opt in
+    p)
+      PROFILE=$OPTARG
+      ;;
+    d)
+      delete=1
+      ;;
+    [h?])
+      usage
+      exit
+      ;;
+  esac
+done
+
+# Region variable
 #
-REGIONS=("us-east-1" "eu-west-1" "ap-northeast-1" "us-west-1" "us-west-2" "ap-southeast-1" "ap-southeast-2" "sa-east-1") 
-PROFILE=$2
+REGIONS=("us-east-1" "eu-west-1" "ap-northeast-1" "us-west-1" "us-west-2" "ap-southeast-1" "ap-southeast-2" "sa-east-1" "eu-central-1")
 
 # Test for the aws-cli
 #
@@ -62,6 +81,12 @@ for rg in ${REGIONS[@]}; do
   fi
 
   printf "Enabled: $status\n"
+
+  if [[ $delete -eq 1 ]] && [[ "$name" != "" ]]; then
+    printf ">> Deleting trail $name.\n"
+    aws cloudtrail delete-trail --name $name --profile $PROFILE --region $rg
+  fi
+
 done
 #
 # end main loop
