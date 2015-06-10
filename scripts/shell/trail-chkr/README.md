@@ -12,13 +12,17 @@ This BASH script checks the name and status of CloudTrail in all regions of your
 <b>Usage:</b>
 <p>
 <code>
-trail-chkr.sh --profile \<profile_name\>
+Usage: $0 -p <profile_name> [ -d ]"
+
+  -p  : profile name (in ~/.aws/config)"
+  -d  : (optional) delete trails
+  
 </code>
 
 <b>Output:</b>
 <p>
 <pre>
-./trail-chkr.sh --profile eng
+./trail-chkr.sh -p eng
 
 Checking us-east-1...
 CloudTrail Name: eng-cloudtrail-logs-ue1
