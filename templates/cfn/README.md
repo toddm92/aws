@@ -1,10 +1,10 @@
 ### AWS CloudFormation Templates
 
 <ol>
-  <li><b> autoscale-healthyhost-template.json
+  <li><b> autoscale-healthyhost-template.json </b>
   <br> CloudWatch and AutoScaling work together to monitor ELB/instances and maintain the total number of desired instances in the pool.</br>
   <p>
-  <li><b> bastion-template.json
+  <li><b> bastion-template.json </b>
   <br> Bastion host on-demand. Launch a bastion (jump host) into a public subnet to access your VPC via SSH.  Terminate the server when unused. </br>
   <p>
   <li><b> cloudwatch-iam-alarms-template.json </b>
