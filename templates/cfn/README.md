@@ -6,7 +6,7 @@
   <p>
   <li> bastion-template.json
   <br> Bastion host on-demand. </br>
-
+  <p>
   <li> cloudwatch-iam-alarms-template.json
 
   <li> elasticache-template.json
