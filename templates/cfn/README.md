@@ -26,7 +26,7 @@
   <br> Creates a VPC with four subnets in two availability zones. Launches an Elastic Beanstalk environment. </br>
   <p>
   <li><b> vpc-elasticache-template.json </b>
-  <br> Creates a VPC with four subnets in two availability zones. Calls the elasticache-template.json nested stack. </br>
+  <br> Creates a VPC with four subnets in two availability zones. Calls the <i>elasticache-template.json</i> nested stack. </br>
   <p>
   <li><b> vpc-wNAToption-template.json </b>
   <br> VPC architecture template. Creates a VPC in 1-to-3 availability-zones, 1-to-6 subnets with optional NAT instances in each public subnet/AZ. </br>
