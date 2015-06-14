@@ -2,7 +2,7 @@
 
 <ol>
   <li> autoscale-healthyhost-template.json
-CloudWatch and AutoScaling monitor ELB/instances and maintain the total number of desired instances in the pool.
+  <br> CloudWatch and AutoScaling monitor ELB/instances and maintain the total number of desired instances in the pool.
 
   <li> bastion-template.json
 
