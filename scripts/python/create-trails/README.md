@@ -19,13 +19,13 @@ It does the following:
 <b> Usage: </b>
 
 <pre>
-  create-trail.py -n &lt;client-name&gt; -k <key> -s <secret>
+  create-trail.py -n &lt;client-name&gt; -k &lt;key&gt; -s &lt;secret&gt;
 
-    -n <client-name> : client or service name
-    -k <key>         : aws access key id
-    -s <secret>      : aws secret access key
+    -n &lt;client-name&gt; : client or service name
+    -k &lt;key&gt;         : aws access key id
+    -s &lt;secret&gt;      : aws secret access key
 
    == CloudOps central account naming convention ==
-    * S3 bucket: "<client-name>-central-cloudtrail-logs"
-    * SQS queue: "<client-name>-central-cloudtrail-queue"
+    * S3 bucket: "&lt;client-name&gt;-central-cloudtrail-logs"
+    * SQS queue: "&lt;client-name&gt;-central-cloudtrail-queue"
 </pre>
