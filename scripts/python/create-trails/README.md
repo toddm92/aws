@@ -7,13 +7,15 @@ It does the following:
   <li> Creates a new SNS topic.
   <li> Assigns the appropriate CloudTrail permissions to the new SNS topic.
   <li> Creates a new trail in each region and enables logging.
-  <li> Subscribes the SNS topic to an existing SQS queue (for the SplunkAppForAWS app).
+  <li> Subscribes the SNS topic to a SQS queue (for the SplunkAppForAWS app).
 </ol>
 
 <b>Requirements:</b>
 <ul>
  <li> Tested w/ python version 2.7 / boto version 2.34
  <li> Valid AWS API keys
+ <li> An existing S3 bucket with CloudTrail policy
+ <li> An existing SQS queue ARN
 </ul>
 
 <b> Usage: </b>
@@ -25,7 +27,7 @@ It does the following:
     -k &lt;key&gt;         : aws access key id
     -s &lt;secret&gt;      : aws secret access key
 
-   == CloudOps central account naming convention ==
+   == Naming convention ==
     * S3 bucket: "&lt;client-name&gt;-central-cloudtrail-logs"
     * SQS queue: "&lt;client-name&gt;-central-cloudtrail-queue"
 </pre>
