@@ -19,7 +19,7 @@ It does the following:
 <b> Usage: </b>
 
 <pre>
-  create-trail.py -n <client-name> -k <key> -s <secret>
+  create-trail.py -n &lt;client-name&gt; -k <key> -s <secret>
 
     -n <client-name> : client or service name
     -k <key>         : aws access key id
