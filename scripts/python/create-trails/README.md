@@ -17,3 +17,15 @@ It does the following:
 </ul>
 
 <b> Usage: </b>
+
+<pre>
+  create-trail.py -n <client-name> -k <key> -s <secret>
+
+    -n <client-name> : client or service name
+    -k <key>         : aws access key id
+    -s <secret>      : aws secret access key
+
+   == CloudOps central account naming convention ==
+    * S3 bucket: "<client-name>-central-cloudtrail-logs"
+    * SQS queue: "<client-name>-central-cloudtrail-queue"
+</pre>
