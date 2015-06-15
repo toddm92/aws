@@ -31,3 +31,8 @@ It does the following:
     * S3 bucket: "&lt;client-name&gt;-central-cloudtrail-logs"
     * SQS queue: "&lt;client-name&gt;-central-cloudtrail-queue"
 </pre>
+
+<b> To Do: </b>
+<ul>
+  <li> Testing and error checking
+</ul>
