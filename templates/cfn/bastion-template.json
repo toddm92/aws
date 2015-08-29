@@ -69,7 +69,7 @@
 
     "asBastionlaunch" : {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
-      "DependsOn" : [ "iamBastionProfile", "ec2BastionSecurityGroup" ],
+      "DependsOn" : [ "ec2BastionSecurityGroup" ],
         "Metadata" : {
         "Comment" : "Setup iptables and disable unwanted services",
           "AWS::CloudFormation::Init" : {
@@ -138,7 +138,6 @@
         "KeyName"                       : { "Ref" : "cUserKeys" },
         "InstanceType"                  : { "Ref" : "bInstanceType" },
         "InstanceMonitoring"            : "false",
-        "IamInstanceProfile"            : { "Ref" : "iamBastionProfile" },
         "AssociatePublicIpAddress"      : "true",
         "SecurityGroups"                : [ { "Ref" : "ec2BastionSecurityGroup" } ],
         "UserData" : {
@@ -173,38 +172,6 @@
           { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName" }, "PropagateAtLaunch" : true },
           { "Key" : "Name", "Value" : { "Ref" : "hBastionName" }, "PropagateAtLaunch" : true }
         ]
-      }
-    },
-
-    "iamBastionRole" : {
-      "Type" : "AWS::IAM::Role",
-      "Properties" : {
-        "AssumeRolePolicyDocument": {
-          "Statement" : [ {
-            "Effect"                    : "Allow",
-            "Principal" : {
-              "Service"                 : [ "ec2.amazonaws.com" ] },
-              "Action"                  : [ "sts:AssumeRole" ]
-          } ]
-        },
-        "Path"                          : "/",
-        "Policies" : [ {
-          "PolicyName"                  : "ec2DenyAll",
-          "PolicyDocument" : {
-            "Statement" : [ {
-              "Effect"                  : "Deny",
-              "Action"                  : [ "ec2:*" ],
-              "Resource"                : "*"
-            } ]
-          }
-        } ]
-      }
-    },
-    "iamBastionProfile" : {
-      "Type": "AWS::IAM::InstanceProfile",
-      "Properties" : {
-        "Path"                          : "/",
-        "Roles"                         : [ { "Ref": "iamBastionRole" } ]
       }
     },
 
