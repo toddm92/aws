@@ -1,44 +1,38 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "Deploy a NAT instance with enhanced network capabilities.",
+  "Description" : "Deploy a NAT instance with the option for enhanced network capabilities.",
 
   "Parameters" : {
 
     "aAvailZone" : {
         "Type"                          : "String",
-        "Default"                       : "us-east-1b",
+        "Default"                       : "us-east-1a",
         "AllowedPattern"                : "us-east-1[a-e]|us-west-[1-2a-c]|eu-west-1[a-c]|ap-northeast-1[a-c]|ap-southeast-[1-2a-c]|sa-east-1[a-c]|eu-central-1[a-c]",
         "Description"                   : "Name of the availability-zone."
     },
     "bPubSubnetId" : {
         "Type"                          : "AWS::EC2::Subnet::Id",
-        "Description"                   : "Public subnet Id for AvailZone."
+        "Description"                   : "The public subnet Id for the above AvailZone."
     },
     "cInstanceType" : {
         "Type"                          : "String",
         "Default"                       : "c3.2xlarge",
-        "AllowedPattern"                : "m3.medium|m3.large|m3.xlarge|m3.2xlarge|c4.large|c4.xlarge|c4.2xlarge|c4.4xlarge|c4.8xlarge|c3.large|c3.xlarge|c3.2xlarge|c3.4xlarge|c3.8xlarge|r3.large|r3.xlarge|r3.2xlarge|r3.4xlarge|r3.8xlarge|i2.xlarge|i2.2xlarge|i2.4xlarge|i2.8xlarge",
-        "Description"                   : "NAT instance size. Note: For enhanced networking, choose a c3, r3 or i2 class instance."
+        "AllowedValues"                 : [ "t2.small","t2.medium","m4.large","m4.xlarge","m4.2xlarge","c4.large","c4.xlarge","c4.2xlarge","c4.4xlarge","c4.8xlarge","c3.large","c3.xlarge","c3.2xlarge","c3.4xlarge","c3.8xlarge","r3.large","r3.xlarge","r3.2xlarge","r3.4xlarge","r3.8xlarge","i2.xlarge","i2.2xlarge","i2.4xlarge","i2.8xlarge" ],
+        "Description"                   : "NAT instance size. Note: For enhanced networking, choose a c4, c3, r3 or i2 class instance."
     },
-    "dAMIArch" : {
-        "Type"                          : "String",
-        "Default"                       : "HVM",
-        "AllowedPattern"                : "HVM|PV",
-        "Description"                   : "Choose HVM for enhanced networking (instance types; c3, r3 or i2) or PV."
-    },
-    "eUserKeys" : {
+    "dUserKeys" : {
         "Type"                          : "AWS::EC2::KeyPair::KeyName",
         "Description"                   : "Name of your key pair."
     },
-    "fNATSecurityGroup" : {
+    "eNATSecurityGroup" : {
         "Type"                          : "AWS::EC2::SecurityGroup::Id",
         "Description"                   : "Your NAT security group."
     },
-    "gNATName" : {
+    "fNATName" : {
         "Type"                          : "String",
         "Default"                       : "natgw-dev-az1",
         "AllowedPattern"                : "[-a-zA-Z0-9]*",
-        "Description"                   : "Instance name (for tagging)."
+        "Description"                   : "Instance name (used for tagging)."
     }
   },
 
@@ -59,72 +53,54 @@
 
   "Resources" : {
 
-    "ec2IPAddressNAT" : {
+    "ec2eni" : {
+      "Type" : "AWS::EC2::NetworkInterface",
+      "Properties" : {
+        "Description"                   : "NAT interface",
+        "GroupSet"                      : [ { "Ref" : "eNATSecurityGroup" } ],
+        "SourceDestCheck"               : "false",
+        "SubnetId"                      : { "Ref" : "bPubSubnetId" },
+        "Tags": [
+            { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName"} },
+            { "Key" : "Name",  "Value" : { "Ref" : "fNATName" } }
+        ]
+      }
+    },
+
+    "ec2IPAddress" : {
       "Type" : "AWS::EC2::EIP",
       "Properties" : {
-        "Domain"                        : "vpc",
-        "InstanceId"                    : { "Ref" : "ec2NATInstance" }
+        "Domain"                        : "vpc"
       }
     },
-
-    "iamNATRole" : {
-      "Type" : "AWS::IAM::Role",
+    "ec2EIPAssoc" : {
+      "Type" : "AWS::EC2::EIPAssociation",
+      "DependsOn" : [ "ec2eni", "ec2IPAddress" ],
       "Properties" : {
-        "AssumeRolePolicyDocument": {
-          "Statement" : [ {
-            "Effect" : "Allow",
-            "Principal" : {
-              "Service" : [ "ec2.amazonaws.com" ]
-            },
-            "Action" : [ "sts:AssumeRole" ]
-          } ]
-        },
-        "Path" : "/",
-        "Policies" : [ {
-          "PolicyName" : "NATMonitor",
-          "PolicyDocument" : {
-            "Statement" : [ {
-              "Effect" : "Allow",
-              "Action" : [
-                        "ec2:CreateRoute",
-                        "ec2:DescribeInstances",
-                        "ec2:ReplaceRoute",
-                        "ec2:StartInstances",
-                        "ec2:StopInstances"
-              ],
-              "Resource" : "*"
-            } ]
-          }
-        } ]
-      }
-    },
-
-    "iamNATMonitorProfile" : {
-      "Type": "AWS::IAM::InstanceProfile",
-      "Properties" : {
-        "Path" : "/",
-        "Roles" : [ { "Ref": "iamNATRole" } ]
+        "AllocationId"                  : { "Fn::GetAtt" : [ "ec2IPAddress", "AllocationId" ] },
+        "NetworkInterfaceId"            : { "Ref" : "ec2eni" }
       }
     },
 
     "ec2NATInstance" : {
       "Type" : "AWS::EC2::Instance",
-      "DependsOn" : [ "iamNATMonitorProfile" ],
+      "DependsOn" : [ "ec2eni" ],
       "Properties" : {
         "AvailabilityZone"              : { "Ref" : "aAvailZone" },
-        "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, { "Ref" : "dAMIArch" } ] },
+        "ImageId"                       : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
         "InstanceType"                  : { "Ref" : "cInstanceType" },
         "Tenancy"                       : "default",
         "Monitoring"                    : "true",
-        "SourceDestCheck"               : "false",
         "DisableApiTermination"         : "true",
-        "KeyName"                       : { "Ref" : "eUserKeys" },
-        "SecurityGroupIds"              : [ { "Ref" : "fNATSecurityGroup" } ],
-        "SubnetId"                      : { "Ref" : "bPubSubnetId" },
-        "IamInstanceProfile"            : { "Ref": "iamNATMonitorProfile" },
+        "KeyName"                       : { "Ref" : "dUserKeys" },
+        "NetworkInterfaces"             : [ {
+              "DeleteOnTermination"     : "false",
+              "DeviceIndex"             : "0",
+              "NetworkInterfaceId"      : { "Ref" : "ec2eni" }
+        } ],
         "Tags": [
             { "Key" : "Stack", "Value" : { "Ref" : "AWS::StackName"} },
-            { "Key" : "Name",  "Value" : { "Ref" : "gNATName" } }
+            { "Key" : "Name",  "Value" : { "Ref" : "fNATName" } }
         ]
       }
     }
