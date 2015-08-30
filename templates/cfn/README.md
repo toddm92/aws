@@ -20,7 +20,7 @@
   <br> Creates an IAM "power user" group and inline policy. </br>
   <p>
   <li><b> nat-instance-template.json </b>
-  <br> Deploys a NAT instance with enhanced network capabilities into a public subnet. <br>
+  <br> Deploys a NAT instance with the option for enhanced network capabilities into a public subnet. <br>
   <p>
   <li><b> vpc-beanstalk-template.json </b>
   <br> Creates a VPC with four subnets in two availability zones. Launches an Elastic Beanstalk environment. </br>
