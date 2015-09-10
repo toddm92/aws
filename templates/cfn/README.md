@@ -22,13 +22,14 @@
   <li><b> nat-instance-template.json </b>
   <br> Deploys a NAT instance with the option for enhanced network capabilities into a public subnet. <br>
   <p>
+  <li><b> vpc-2az-template.json </b>
+  <br> VPC Architecture template. Creates a VPC in 2 availability-zones, 4-6 subnets (optional Db subnet tier). </br>
+  <p>
   <li><b> vpc-beanstalk-template.json </b>
   <br> Creates a VPC with four subnets in two availability zones. Launches an Elastic Beanstalk environment. </br>
   <p>
   <li><b> vpc-elasticache-template.json </b>
   <br> Creates a VPC with four subnets in two availability zones. Calls the <i>elasticache-template.json</i> nested stack. </br>
   <p>
-  <li><b> vpc-wNAToption-template.json </b>
-  <br> VPC architecture template. Creates a VPC in 1-to-3 availability-zones, 1-to-6 subnets with optional NAT instances in each public subnet/AZ. </br>
 
 </ol>
