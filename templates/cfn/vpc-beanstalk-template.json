@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "Creates a VPC in two availability zones. Launches an Elastic Beanstalk environment.",
+  "Description" : "Creates a VPC in two availability zones. Launches a demo Elastic Beanstalk environment.",
 
   "Parameters" : {
 
@@ -52,6 +52,12 @@
         "Type"                          : "Number",
         "Default"                       : "-2",
         "Description"                   : "Number of instances by which to scale down."
+    },
+    "jNATInstanceType" : {
+        "Type"                          : "String",
+        "Default"                       : "c3.2xlarge",
+        "AllowedValues"                 : [ "m4.large","m4.xlarge","m4.2xlarge","c4.large","c4.xlarge","c4.2xlarge","c4.4xlarge","c4.8xlarge","c3.large","c3.xlarge","c3.2xlarge","c3.4xlarge","c3.8xlarge","r3.large","r3.xlarge","r3.2xlarge","r3.4xlarge","r3.8xlarge","i2.xlarge","i2.2xlarge","i2.4xlarge","i2.8xlarge" ],
+        "Description"                   : "NAT instance size. Note: For enhanced networking, choose a c4, c3, r3 or i2 class instance."
     }
   },
 
@@ -64,27 +70,16 @@
         "Private1"                      : { "CIDR" : "10.10.2.0/24" },
         "Private2"                      : { "CIDR" : "10.10.3.0/24" }
     },
-    "RegionLinuxAMI" : {
-        "us-east-1"                     : { "PV" : "ami-8e682ce6" },
-        "eu-west-1"                     : { "PV" : "ami-7b3db00c" },
-        "ap-northeast-1"                : { "PV" : "ami-3c87993d" },
-        "us-west-1"                     : { "PV" : "ami-f49089b1" },
-        "us-west-2"                     : { "PV" : "ami-9fc29baf" },
-        "ap-southeast-1"                : { "PV" : "ami-58ba910a" },
-        "ap-southeast-2"                : { "PV" : "ami-1500742f" },
-        "sa-east-1"                     : { "PV" : "ami-fd9925e0" },
-        "eu-central-1"                  : { "PV" : "ami-0600331b" }
-    },
-    "RegionNATAMI" : {
-        "us-east-1"                     : { "HVM" : "ami-4c9e4b24" },
-        "eu-west-1"                     : { "HVM" : "ami-3760b040" },
-        "ap-northeast-1"                : { "HVM" : "ami-55c29e54" },
-        "us-west-1"                     : { "HVM" : "ami-2b2b296e" },
-        "us-west-2"                     : { "HVM" : "ami-bb69128b" },
-        "ap-southeast-1"                : { "HVM" : "ami-b082dae2" },
-        "ap-southeast-2"                : { "HVM" : "ami-996402a3" },
-        "sa-east-1"                     : { "HVM" : "ami-b972dba4" },
-        "eu-central-1"                  : { "HVM" : "ami-204c7a3d" }
+    "RegionMap" : {
+        "us-east-1"                     : { "TEST" : "ami-8e682ce6", "NAT" : "ami-4c9e4b24" },
+        "eu-west-1"                     : { "TEST" : "ami-7b3db00c", "NAT" : "ami-3760b040" },
+        "ap-northeast-1"                : { "TEST" : "ami-3c87993d", "NAT" : "ami-55c29e54" },
+        "us-west-1"                     : { "TEST" : "ami-f49089b1", "NAT" : "ami-2b2b296e" },
+        "us-west-2"                     : { "TEST" : "ami-9fc29baf", "NAT" : "ami-bb69128b" },
+        "ap-southeast-1"                : { "TEST" : "ami-58ba910a", "NAT" : "ami-b082dae2" },
+        "ap-southeast-2"                : { "TEST" : "ami-1500742f", "NAT" : "ami-b972dba4" },
+        "sa-east-1"                     : { "TEST" : "ami-fd9925e0", "NAT" : "ami-b972dba4" },
+        "eu-central-1"                  : { "TEST" : "ami-0600331b", "NAT" : "ami-204c7a3d" }
     }
   },
 
@@ -98,6 +93,7 @@
           "EnableDnsHostnames"          : "true",
           "InstanceTenancy"             :"default",
         "Tags": [
+          { "Key": "Name", "Value": "eb-vpc" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -107,6 +103,7 @@
       "Type" : "AWS::EC2::InternetGateway",
         "Properties" : {
         "Tags": [
+          { "Key": "Name", "Value": "eb-igw" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -129,6 +126,7 @@
             "Fn::Select"                : [ "0", { "Fn::GetAZs" : "" } ]
           },
         "Tags": [
+          { "Key": "Name", "Value": "eb-public-az1" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -142,6 +140,7 @@
             "Fn::Select"                : [ "1", { "Fn::GetAZs" : "" } ]
           },
         "Tags": [
+          { "Key": "Name", "Value": "eb-public-az2" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -156,6 +155,7 @@
             "Fn::Select"                : [ "0", { "Fn::GetAZs" : "" } ]
           },
         "Tags": [
+          { "Key": "Name", "Value": "eb-private-az1" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -169,6 +169,7 @@
             "Fn::Select"                : [ "1", { "Fn::GetAZs" : "" } ]
           },
         "Tags": [
+          { "Key": "Name", "Value": "eb-private-az2" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -179,6 +180,7 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
+          { "Key": "Name", "Value": "eb-public-rtb" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -188,6 +190,7 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
+          { "Key": "Name", "Value": "eb-private-rtb-az1" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -197,6 +200,7 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
+          { "Key": "Name", "Value": "eb-private-rtb-az2" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -264,6 +268,7 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
+          { "Key": "Name", "Value": "eb-public-acl" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -316,6 +321,7 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
+          { "Key": "Name", "Value": "eb-private-acl" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -363,91 +369,13 @@
       }
     },
 
-    "ec2IPAddressTest1" : {
-      "Type" : "AWS::EC2::EIP",
-      "DependsOn" : [ "ec2TestInstanceAZ1" ],
-        "Properties" : {
-          "Domain"                      : "vpc",
-          "InstanceId"                  : { "Ref" : "ec2TestInstanceAZ1" }
-        }
-    },
-    "ec2IPAddressNAT1" : {
-      "Type" : "AWS::EC2::EIP",
-      "DependsOn" : [ "ec2NATInstanceAZ1" ],
-        "Properties" : {
-          "Domain"                      : "vpc",
-          "InstanceId"                  : { "Ref" : "ec2NATInstanceAZ1" }
-        }
-    },
-    "ec2IPAddressNAT2" : {
-      "Type" : "AWS::EC2::EIP",
-      "DependsOn" : [ "ec2NATInstanceAZ2" ],
-        "Properties" : {
-          "Domain"                      : "vpc",
-          "InstanceId"                  : { "Ref" : "ec2NATInstanceAZ2" }
-        }
-    },
-
-    "ec2TestInstanceAZ1" : {
-      "Type" : "AWS::EC2::Instance",
-      "DependsOn" : [ "ec2TestSecurityGroup" ],
-        "Properties" : {
-          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ1", "AvailabilityZone" ] },
-          "ImageId"                     : { "Fn::FindInMap" : [ "RegionLinuxAMI", { "Ref" : "AWS::Region" }, "PV" ] },
-          "InstanceType"                : { "Ref" : "aTestInstanceType" },
-          "Monitoring"                  : "false",
-          "KeyName"                     : { "Ref" : "bUserKeys" },
-          "SecurityGroupIds"            : [ { "Ref" : "ec2TestSecurityGroup" } ],
-          "SubnetId"                    : { "Ref" : "ec2Public1SubnetAZ1" },
-        "Tags": [
-          { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
-        ]
-      }
-    },
-
-    "ec2NATInstanceAZ1" : {
-      "Type" : "AWS::EC2::Instance",
-      "DependsOn" : [ "ec2NATSecurityGroup" ],
-        "Properties" : {
-          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ1", "AvailabilityZone" ] },
-          "ImageId"                     : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
-          "InstanceType"                : "c3.2xlarge",
-          "Monitoring"                  : "true",
-          "SourceDestCheck"             : "false",
-          "DisableApiTermination"       : "true",
-          "KeyName"                     : { "Ref" : "bUserKeys" },
-          "SecurityGroupIds"            : [ { "Ref" : "ec2NATSecurityGroup" } ],
-          "SubnetId"                    : { "Ref" : "ec2Public1SubnetAZ1" },
-        "Tags": [
-          { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
-        ]
-      }
-    },
-    "ec2NATInstanceAZ2" : {
-      "Type" : "AWS::EC2::Instance",
-      "DependsOn" : [ "ec2NATSecurityGroup" ],
-        "Properties" : {
-          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ2", "AvailabilityZone" ] },
-          "ImageId"                     : { "Fn::FindInMap" : [ "RegionNATAMI", { "Ref" : "AWS::Region" }, "HVM" ] },
-          "InstanceType"                : "c3.2xlarge",
-          "Monitoring"                  : "true",
-          "SourceDestCheck"             : "false",
-          "DisableApiTermination"       : "true",
-          "KeyName"                     : { "Ref" : "bUserKeys" },
-          "SecurityGroupIds"            : [ { "Ref" : "ec2NATSecurityGroup" } ],
-          "SubnetId"                    : { "Ref" : "ec2Public1SubnetAZ2" },
-        "Tags": [
-          { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
-        ]
-      }
-    },
-
     "ec2TestSecurityGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
         "Properties" : {
           "GroupDescription"            : "Security group for our test instance.",
           "VpcId"                       : {"Ref" : "ec2VPC"},
         "Tags": [
+          { "Key": "Name", "Value": "eb-test-sg" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ],
         "SecurityGroupIngress" : [
@@ -462,17 +390,174 @@
     },
     "ec2NATSecurityGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
+      "DependsOn" : [ "ec2TestSecurityGroup" ],
         "Properties" : {
           "GroupDescription"            : "Security group for our NAT instances.",
           "VpcId"                       : {"Ref" : "ec2VPC"},
         "Tags": [
+          { "Key": "Name", "Value": "eb-nat-sg" },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ],
-        "SecurityGroupIngress"  : [
+        "SecurityGroupIngress" : [
           {
-          "IpProtocol"                  : "-1",
+          "IpProtocol"                  : "tcp",
+          "FromPort"                    : "443",
+          "ToPort"                      : "443",
           "CidrIp"                      : { "Fn::FindInMap" : [ "SubnetConfig", "VPC", "CIDR" ] }
+          },
+          {
+          "IpProtocol"                  : "tcp",
+          "FromPort"                    : "80",
+          "ToPort"                      : "80",
+          "CidrIp"                      : { "Fn::FindInMap" : [ "SubnetConfig", "VPC", "CIDR" ] }
+          },
+          {
+          "IpProtocol"                  : "tcp",
+          "FromPort"                    : "22",
+          "ToPort"                      : "22",
+          "SourceSecurityGroupId"       : { "Ref" : "ec2TestSecurityGroup" }
           }
+        ],
+        "SecurityGroupEgress" : [
+          {
+          "IpProtocol"                  : "tcp",
+          "FromPort"                    : "443",
+          "ToPort"                      : "443",
+          "CidrIp"                      : "0.0.0.0/0"
+          },
+          {
+          "IpProtocol"                  : "tcp",
+          "FromPort"                    : "80",
+          "ToPort"                      : "80",
+          "CidrIp"                      : "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+
+    "ec2TestInstanceAZ1" : {
+      "Type" : "AWS::EC2::Instance",
+        "Properties" : {
+          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ1", "AvailabilityZone" ] },
+          "ImageId"                     : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "TEST" ] },
+          "InstanceType"                : { "Ref" : "aTestInstanceType" },
+          "Monitoring"                  : "false",
+          "KeyName"                     : { "Ref" : "bUserKeys" },
+          "NetworkInterfaces"           : [ {
+              "DeviceIndex"             : "0",
+              "GroupSet"                : [ { "Ref" : "ec2TestSecurityGroup" } ],
+              "SubnetId"                : { "Ref" : "ec2Public1SubnetAZ1" },
+              "AssociatePublicIpAddress": "true"
+        } ],
+        "Tags": [
+          { "Key": "Name", "Value": "eb-test-instance" },
+          { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
+        ]
+      }
+    },
+
+    "ec2eniAZ1" : {
+      "Type" : "AWS::EC2::NetworkInterface",
+      "DependsOn" : [ "ec2NATSecurityGroup", "ec2Public1SubnetAZ1" ],
+        "Properties" : {
+          "Description"                 : "NAT interface",
+          "GroupSet"                    : [ { "Ref" : "ec2NATSecurityGroup" } ],
+          "SourceDestCheck"             : "false",
+          "SubnetId"                    : { "Ref" : "ec2Public1SubnetAZ1" },
+        "Tags": [
+          { "Key": "Name", "Value": "eb-nat-eni-az1" },
+          { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
+        ]
+      }
+    },
+
+    "ec2IPAddressNAT1" : {
+      "Type" : "AWS::EC2::EIP",
+      "Properties" : {
+        "Domain"                        : "vpc"
+      }
+    },
+    "ec2EIPAssocAZ1" : {
+      "Type" : "AWS::EC2::EIPAssociation",
+      "DependsOn" : [ "ec2eniAZ1", "ec2IPAddressNAT1" ],
+      "Properties" : {
+        "AllocationId"                  : { "Fn::GetAtt" : [ "ec2IPAddressNAT1", "AllocationId" ] },
+        "NetworkInterfaceId"            : { "Ref" : "ec2eniAZ1" }
+      }
+    },
+
+    "ec2NATInstanceAZ1" : {
+      "Type" : "AWS::EC2::Instance",
+      "DependsOn" : [ "ec2eniAZ1" ],
+        "Properties" : {
+          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ1", "AvailabilityZone" ] },
+          "ImageId"                     : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "NAT" ] },
+          "InstanceType"                : { "Ref" : "jNATInstanceType" },
+          "Tenancy"                     : "default",
+          "Monitoring"                  : "true",
+          "DisableApiTermination"       : "true",
+          "KeyName"                     : { "Ref" : "bUserKeys" },
+          "NetworkInterfaces"           : [ {
+              "DeleteOnTermination"     : "false",
+              "DeviceIndex"             : "0",
+              "NetworkInterfaceId"      : { "Ref" : "ec2eniAZ1" }
+        } ],
+        "Tags": [
+          { "Key": "Name", "Value": "eb-nat-az1" },
+          { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
+        ]
+      }
+    },
+
+    "ec2eniAZ2" : {
+      "Type" : "AWS::EC2::NetworkInterface",
+      "DependsOn" : [ "ec2NATSecurityGroup", "ec2Public1SubnetAZ2" ],
+        "Properties" : {
+          "Description"                 : "NAT interface",
+          "GroupSet"                    : [ { "Ref" : "ec2NATSecurityGroup" } ],
+          "SourceDestCheck"             : "false",
+          "SubnetId"                    : { "Ref" : "ec2Public1SubnetAZ2" },
+        "Tags": [
+          { "Key": "Name", "Value": "eb-nat-eni-az2" },
+          { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
+        ]
+      }
+    },
+
+    "ec2IPAddressNAT2" : {
+      "Type" : "AWS::EC2::EIP",
+      "Properties" : {
+        "Domain"                        : "vpc"
+      }
+    },
+    "ec2EIPAssocAZ2" : {
+      "Type" : "AWS::EC2::EIPAssociation",
+      "DependsOn" : [ "ec2eniAZ2", "ec2IPAddressNAT2" ],
+      "Properties" : {
+        "AllocationId"                  : { "Fn::GetAtt" : [ "ec2IPAddressNAT2", "AllocationId" ] },
+        "NetworkInterfaceId"            : { "Ref" : "ec2eniAZ2" }
+      }
+    },
+
+    "ec2NATInstanceAZ2" : {
+      "Type" : "AWS::EC2::Instance",
+      "DependsOn" : [ "ec2eniAZ2" ],
+        "Properties" : {
+          "AvailabilityZone"            : { "Fn::GetAtt" : [ "ec2Public1SubnetAZ2", "AvailabilityZone" ] },
+          "ImageId"                     : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "NAT" ] },
+          "InstanceType"                : { "Ref" : "jNATInstanceType" },
+          "Tenancy"                     : "default",
+          "Monitoring"                  : "true",
+          "DisableApiTermination"       : "true",
+          "KeyName"                     : { "Ref" : "bUserKeys" },
+          "NetworkInterfaces"           : [ {
+              "DeleteOnTermination"     : "false",
+              "DeviceIndex"             : "0",
+              "NetworkInterfaceId"      : { "Ref" : "ec2eniAZ2" }
+        } ],
+        "Tags": [
+          { "Key": "Name", "Value": "eb-nat-az2" },
+          { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
     },
@@ -486,7 +571,7 @@
             "VersionLabel"              : "Initial Version",
             "Description"               : "Version 1.0",
             "SourceBundle" : {
-              "S3Bucket"                : { "Fn::Join" : ["-", ["elasticbeanstalk-samples", { "Ref" : "AWS::Region" } ] ] },
+              "S3Bucket"                : { "Fn::Join" : [ "-", ["elasticbeanstalk-samples", { "Ref" : "AWS::Region" } ] ] },
               "S3Key"                   : "python-sample.zip"
               }
             }
