@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description"	: "VPC Architecture template. Creates a VPC in 2 availability-zones, 4-6 subnets (optional Db subnet tier).",
+  "Description"	: "VPC Architecture template. Creates a VPC in 2 availability-zones, 4-6 subnets (w/ optional Db subnet tier).",
 
   "Parameters" : {
     "aVPCCIDRBlock" : {
