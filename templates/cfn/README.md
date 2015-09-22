@@ -20,7 +20,10 @@
   <br> Creates an IAM "power user" group and inline policy. </br>
   <p>
   <li><b> nat-instance-template.json </b>
-  <br> Deploys a NAT instance with the option for enhanced network capabilities into a public subnet. <br>
+  <br> Deploys a NAT instance with the option for enhanced network capabilities into a public subnet. </br>
+  <p>
+  <li><b> s3-logging-bucket.json </b>
+  <br>Create a S3 logging bucket, bucket policy and retension policy in the region the stack is launched in. </br>
   <p>
   <li><b> vpc-2az-template.json </b>
   <br> VPC Architecture template. Creates a VPC in 2 availability-zones, 4-6 subnets (optional Db subnet tier). </br>
@@ -31,5 +34,4 @@
   <li><b> vpc-elasticache-template.json </b>
   <br> Creates a VPC with four subnets in two availability zones. Calls the <i>elasticache-template.json</i> nested stack. </br>
   <p>
-
 </ol>
