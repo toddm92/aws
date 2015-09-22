@@ -1,0 +1,69 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Create a S3 logging bucket, bucket policy and retension policy in the region the stack is launched in.",
+
+  "Conditions" : {
+
+    "Singapore" : {
+        "Fn::Equals" : [ { "Ref" : "AWS::Region" }, "ap-southeast-1" ]
+    },
+    "SaoPaulo" : {
+        "Fn::Equals" : [ { "Ref" : "AWS::Region" }, "sa-east-1" ]
+    },
+    "NoGlacierSupport" : {
+        "Fn::Or" : [ { "Condition" : "Singapore" }, { "Condition" : "SaoPaulo" } ]
+    }
+  },
+
+  "Resources" : {
+
+    "S3LoggingBucket" : {
+      "Type" : "AWS::S3::Bucket",
+      "Properties" : {
+        "BucketName"                    :  { "Fn::Join" : [ "-", [ "bucketlogs", { "Ref": "AWS::AccountId" }, { "Ref": "AWS::Region" } ] ] },
+        "LifecycleConfiguration" : {
+          "Rules" : [
+            {
+              "Id"                      : "ArchiveRule",
+              "Status"                  : "Enabled",
+              "ExpirationInDays"        : "365",
+              "Transition" : {
+                "Fn::If" : [ "NoGlacierSupport",
+                  { "Ref" : "AWS::NoValue" },
+                  { "TransitionInDays" : "90", "StorageClass" : "Glacier" }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    "S3LoggingBucketPolicy" : {
+      "Type" : "AWS::S3::BucketPolicy",
+      "DependsOn" : [ "S3LoggingBucket" ],
+      "Properties" : {
+        "Bucket"                        : { "Ref" : "S3LoggingBucket" },
+        "PolicyDocument" : {
+          "Version"                     : "2008-10-17",
+          "Statement" : [
+            {
+              "Effect"                  : "Allow",
+              "Resource"                : { "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref": "S3LoggingBucket" }, "/*" ] ] },
+              "Principal"               : { "AWS": { "Fn::Join" : [ ":", [ "arn:aws:iam:", { "Ref": "AWS::AccountId" }, "root" ] ] } },
+              "Action"                  : [ "s3:PutObject" ]
+            }
+          ]
+        }
+      }
+    }
+  },
+
+  "Outputs" : {
+
+    "BucketName" : {
+      "Description"                     : "Logging bucket",
+      "Value"                           : { "Ref" : "S3LoggingBucket" }
+    }
+  }
+}
