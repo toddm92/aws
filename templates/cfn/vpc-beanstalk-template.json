@@ -63,6 +63,9 @@
 
   "Mappings" : {
 
+    "TagConv" : {
+        "Name"                          : { "VALUE" : "ebean" }
+    },
     "SubnetConfig" : {
         "VPC"                           : { "CIDR" : "10.10.0.0/22" },
         "Public1"                       : { "CIDR" : "10.10.0.0/24" },
@@ -93,7 +96,12 @@
           "EnableDnsHostnames"          : "true",
           "InstanceTenancy"             :"default",
         "Tags": [
-          { "Key": "Name", "Value": "eb-vpc" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "vpc"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -103,7 +111,12 @@
       "Type" : "AWS::EC2::InternetGateway",
         "Properties" : {
         "Tags": [
-          { "Key": "Name", "Value": "eb-igw" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "igw"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -126,7 +139,12 @@
             "Fn::Select"                : [ "0", { "Fn::GetAZs" : "" } ]
           },
         "Tags": [
-          { "Key": "Name", "Value": "eb-public-az1" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "public-az1"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -140,7 +158,12 @@
             "Fn::Select"                : [ "1", { "Fn::GetAZs" : "" } ]
           },
         "Tags": [
-          { "Key": "Name", "Value": "eb-public-az2" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "public-az2"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -155,7 +178,12 @@
             "Fn::Select"                : [ "0", { "Fn::GetAZs" : "" } ]
           },
         "Tags": [
-          { "Key": "Name", "Value": "eb-private-az1" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "private-az1"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -169,7 +197,12 @@
             "Fn::Select"                : [ "1", { "Fn::GetAZs" : "" } ]
           },
         "Tags": [
-          { "Key": "Name", "Value": "eb-private-az2" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "private-az2"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -180,7 +213,12 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
-          { "Key": "Name", "Value": "eb-public-rtb" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "public-rtb"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -190,7 +228,12 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
-          { "Key": "Name", "Value": "eb-private-rtb-az1" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "private-rtb-az1"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -200,7 +243,12 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
-          { "Key": "Name", "Value": "eb-private-rtb-az2" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "private-rtb-az2"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -268,7 +316,12 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
-          { "Key": "Name", "Value": "eb-public-acl" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "public-acl"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -321,7 +374,12 @@
         "Properties" : {
           "VpcId"                       : { "Ref" : "ec2VPC" },
         "Tags": [
-          { "Key": "Name", "Value": "eb-private-acl" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "private-acl"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -375,7 +433,12 @@
           "GroupDescription"            : "Security group for our test instance.",
           "VpcId"                       : {"Ref" : "ec2VPC"},
         "Tags": [
-          { "Key": "Name", "Value": "eb-test-sg" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "test-sg"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ],
         "SecurityGroupIngress" : [
@@ -395,7 +458,12 @@
           "GroupDescription"            : "Security group for our NAT instances.",
           "VpcId"                       : {"Ref" : "ec2VPC"},
         "Tags": [
-          { "Key": "Name", "Value": "eb-nat-sg" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "nat-sg"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ],
         "SecurityGroupIngress" : [
@@ -450,7 +518,12 @@
               "AssociatePublicIpAddress": "true"
         } ],
         "Tags": [
-          { "Key": "Name", "Value": "eb-test-instance" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "test-instance"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -465,7 +538,12 @@
           "SourceDestCheck"             : "false",
           "SubnetId"                    : { "Ref" : "ec2Public1SubnetAZ1" },
         "Tags": [
-          { "Key": "Name", "Value": "eb-nat-eni-az1" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "nat-eni-az1"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -503,7 +581,12 @@
               "NetworkInterfaceId"      : { "Ref" : "ec2eniAZ1" }
         } ],
         "Tags": [
-          { "Key": "Name", "Value": "eb-nat-az1" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "nat-az1"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -518,7 +601,12 @@
           "SourceDestCheck"             : "false",
           "SubnetId"                    : { "Ref" : "ec2Public1SubnetAZ2" },
         "Tags": [
-          { "Key": "Name", "Value": "eb-nat-eni-az2" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "nat-eni-az2"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
@@ -556,7 +644,12 @@
               "NetworkInterfaceId"      : { "Ref" : "ec2eniAZ2" }
         } ],
         "Tags": [
-          { "Key": "Name", "Value": "eb-nat-az2" },
+          { "Key": "Name", "Value": { "Fn::Join" : [ "-", 
+            [
+                  { "Fn::FindInMap" : [ "TagConv", "Name", "VALUE" ] },
+                  "nat-az2"
+            ] ] }
+          },
           { "Key": "Stack", "Value": { "Ref" : "AWS::StackName" } }
         ]
       }
