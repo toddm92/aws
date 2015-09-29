@@ -1,0 +1,150 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Create a multi-AZ provisioned IOps RDS instance with a read replica.",
+
+  "Parameters" : {
+
+    "aDBName": {
+      "Type"                                    : "String",
+      "Default"                                 : "myDB",
+      "MinLength"                               : "1",
+      "MaxLength"                               : "64",
+      "AllowedPattern"                          : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription"                   : "Must begin with a letter and contain only alphanumeric characters.",
+      "Description"                             : "The database name."
+    },
+    "bDBUser": {
+      "Type"                                    : "String",
+      "NoEcho"                                  : "true",
+      "MinLength"                               : "1",
+      "MaxLength"                               : "16",
+      "AllowedPattern"                          : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription"                   : "Must begin with a letter and contain only alphanumeric characters.",
+      "Description"                             : "The database Admin account."
+    },
+    "cDBPassword": {
+      "Type"                                    : "String",
+      "NoEcho"                                  : "true",
+      "MinLength"                               : "1",
+      "MaxLength"                               : "41",
+      "AllowedPattern"                          : "[a-zA-Z0-9]+",
+      "ConstraintDescription"                   : "Must contain only alphanumeric characters.",
+      "Description"                             : "The database Admin password."
+    },
+    "dDBAllocatedStorage": {
+      "Type"                                    : "Number",
+      "Default"                                 : "100",
+      "MinValue"                                : "100",
+      "MaxValue"                                : "6144",
+      "ConstraintDescription"                   : "Must be between 100 and 6144Gb.",
+      "Description"                             : "The size of the database (Gb)"
+    },
+    "eIops": {
+      "Type"                                    : "Number",
+      "Default"                                 : "1000",
+      "MinValue"                                : "1000",
+      "MaxValue"                                : "30000",
+      "ConstraintDescription"                   : "The value must be equal to or greater than 1000.",
+      "Description"                             : "The number of I/O operations per second."
+    },
+    "fDBInstanceClass": {
+      "Type"                                    : "String",
+      "Default"                                 : "db.m3.medium",
+      "AllowedValues"                           : [ "db.m3.medium", "db.m3.large", "db.m3.xlarge", "db.m3.2xlarge", "db.r3.large", "db.r3.xlarge", "db.r3.2xlarge", "db.r3.4xlarge", "db.r3.8xlarge", "db.t2.large" ],
+      "Description"                             : "The database instance type."
+    },
+    "gVPCId" : {
+        "Type"                                  : "AWS::EC2::VPC::Id",
+        "Description"                           : "The VPC Id."
+    },
+    "hDBSubnets" : {
+      "Type"                                    : "List<AWS::EC2::Subnet::Id>",
+      "Description"                             : "The subnet ids for your DB subnets."
+    },
+    "iEC2SecurityGroup": {
+      "Type"                                    : "AWS::EC2::SecurityGroup::Id",
+      "Description"                             : "The EC2 security group that contains instances that need access to the database."
+    }
+  },
+
+  "Resources" : {
+
+    "ec2DBSecurityGroup" : {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription"                      : "RDS database security group",
+        "VpcId"                                 : { "Ref" : "gVPCId" },
+        "SecurityGroupIngress" : [
+          {
+            "IpProtocol"                        : "tcp",
+            "FromPort"                          : "3306",
+            "ToPort"                            : "3306",
+            "SourceSecurityGroupId"             : { "Ref" : "iEC2SecurityGroup" }
+          }
+        ],
+        "Tags"                                  : [ { "Key" : "Name", "Value" : "RDS sg" } ]
+      }
+    },
+
+    "rdsDBSubnetGroup" : {
+      "Type" : "AWS::RDS::DBSubnetGroup",
+      "Properties" : {
+        "DBSubnetGroupDescription"              : "RDS subnet group",
+        "SubnetIds"                             : { "Ref" : "hDBSubnets" },
+        "Tags"                                  : [ { "Key" : "Name", "Value" : "RDS subnet group" } ]
+      }
+    },
+
+    "rdsMasterDB" : {
+      "Type" : "AWS::RDS::DBInstance",
+      "Properties" : {
+        "DBName"                                : { "Ref" : "aDBName" },
+        "AllocatedStorage"                      : { "Ref" : "dDBAllocatedStorage" },
+        "DBInstanceClass"                       : { "Ref" : "fDBInstanceClass" },
+        "Engine"                                : "MySQL",
+        "MasterUsername"                        : { "Ref" : "bDBUser" },
+        "MasterUserPassword"                    : { "Ref" : "cDBPassword" },
+        "DBSubnetGroupName"                     : { "Ref" : "rdsDBSubnetGroup" },
+        "MultiAZ"                               : "true",
+        "StorageEncrypted"                      : "true",
+        "StorageType"                           : "io1",
+        "Iops"                                  : { "Ref" : "eIops" },
+        "VPCSecurityGroups"                     : [ { "Ref" : "ec2DBSecurityGroup" } ],
+        "Tags"                                  : [ { "Key" : "Name", "Value" : "Master database" } ]
+      },
+      "DeletionPolicy"                          : "Snapshot"
+    },
+
+    "rdsReplicaDB" : {
+      "Type" : "AWS::RDS::DBInstance",
+      "Properties" : {
+        "SourceDBInstanceIdentifier"            : { "Ref" : "rdsMasterDB" },
+        "DBInstanceClass"                       : { "Ref" : "fDBInstanceClass" },
+        "Tags"                                  : [ { "Key" : "Name", "Value" : "Read Replica database" } ]
+      }
+    }
+  },
+
+  "Outputs" : {
+
+    "MasterConnString" : {
+      "Description"                             : "JDBC connection string for the master database",
+      "Value"                                   : { "Fn::Join": [ "", [ "jdbc:mysql://",
+                                                  { "Fn::GetAtt": [ "rdsMasterDB", "Endpoint.Address" ] },
+                                                  ":",
+                                                  { "Fn::GetAtt": [ "rdsMasterDB", "Endpoint.Port" ] },
+                                                  "/",
+                                                  { "Ref": "aDBName" }]]}
+    },
+    "ReplicaConnString" : {
+      "Description"                             : "JDBC connection string for the replica database",
+      "Value"                                   : { "Fn::Join": [ "", [ "jdbc:mysql://",
+                                                  { "Fn::GetAtt": [ "rdsReplicaDB", "Endpoint.Address" ] },
+                                                  ":",
+                                                  { "Fn::GetAtt": [ "rdsReplicaDB", "Endpoint.Port" ] },
+                                                  "/",
+                                                  { "Ref": "aDBName" }]]}
+    }
+  }
+}
