@@ -98,6 +98,7 @@
 
     "rdsMasterDB" : {
       "Type" : "AWS::RDS::DBInstance",
+      "DependsOn" : [ "rdsDBSubnetGroup", "ec2DBSecurityGroup" ],
       "Properties" : {
         "DBName"                                : { "Ref" : "aDBName" },
         "AllocatedStorage"                      : { "Ref" : "dDBAllocatedStorage" },
@@ -118,6 +119,7 @@
 
     "rdsReplicaDB" : {
       "Type" : "AWS::RDS::DBInstance",
+      "DependsOn" : [ "rdsMasterDB" ],
       "Properties" : {
         "SourceDBInstanceIdentifier"            : { "Ref" : "rdsMasterDB" },
         "DBInstanceClass"                       : { "Ref" : "fDBInstanceClass" },
