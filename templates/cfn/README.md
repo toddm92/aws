@@ -23,7 +23,7 @@
   <br> Deploys a NAT instance with the option for enhanced network capabilities into a public subnet. </br>
   <p>
   <li><b> rds-replica-template.json </b>
-  <br>Create a multi-AZ provisioned IOps RDS instance with a read replica. </br>
+  <br>Create a multi-AZ provisioned IOps RDS instance with an optional read replica. </br>
   <p>
   <li><b> s3-logging-bucket.json </b>
   <br>Create a S3 logging bucket, bucket policy and retension policy in the region the stack is launched in. </br>
