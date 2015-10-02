@@ -48,9 +48,9 @@
           "Version"                     : "2008-10-17",
           "Statement" : [
             {
-              "Effect"                  : "Allow",
+              "Effect"                  : "Deny",
+              "NotPrincipal"            : { "AWS": { "Fn::Join" : [ ":", [ "arn:aws:iam:", { "Ref": "AWS::AccountId" }, "root" ] ] } },
               "Resource"                : { "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref": "S3LoggingBucket" }, "/*" ] ] },
-              "Principal"               : { "AWS": { "Fn::Join" : [ ":", [ "arn:aws:iam:", { "Ref": "AWS::AccountId" }, "root" ] ] } },
               "Action"                  : [ "s3:PutObject" ]
             }
           ]
