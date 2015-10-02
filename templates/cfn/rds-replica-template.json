@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "Create a multi-AZ provisioned IOps RDS instance with a read replica.",
+  "Description" : "Create a multi-AZ provisioned IOps RDS instance with an optional read replica.",
 
   "Parameters" : {
 
@@ -60,11 +60,24 @@
     },
     "hDBSubnets" : {
       "Type"                                    : "List<AWS::EC2::Subnet::Id>",
-      "Description"                             : "The subnet ids for your DB subnets."
+      "Description"                             : "The subnet ids of your DB subnets. Minimum of two."
     },
     "iEC2SecurityGroup": {
       "Type"                                    : "AWS::EC2::SecurityGroup::Id",
       "Description"                             : "The EC2 security group that contains instances that need access to the database."
+    },
+    "jReadReplica": {
+      "Type"                                    : "String",
+      "Default"                                 : "yes",
+      "AllowedValues"                           : [ "yes", "no" ],
+      "Description"                             : "Create a read replica?"
+    }
+  },
+
+  "Conditions" : {
+
+    "ReadReplica" : {
+        "Fn::Equals" : [ { "Ref" : "jReadReplica" }, "yes" ]
     }
   },
 
@@ -119,6 +132,7 @@
 
     "rdsReplicaDB" : {
       "Type" : "AWS::RDS::DBInstance",
+      "Condition" : "ReadReplica",
       "DependsOn" : [ "rdsMasterDB" ],
       "Properties" : {
         "SourceDBInstanceIdentifier"            : { "Ref" : "rdsMasterDB" },
@@ -140,6 +154,7 @@
                                                   { "Ref": "aDBName" }]]}
     },
     "ReplicaConnString" : {
+      "Condition" : "ReadReplica",
       "Description"                             : "JDBC connection string for the replica database",
       "Value"                                   : { "Fn::Join": [ "", [ "jdbc:mysql://",
                                                   { "Fn::GetAtt": [ "rdsReplicaDB", "Endpoint.Address" ] },
