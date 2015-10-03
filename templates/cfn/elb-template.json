@@ -4,29 +4,29 @@
 
   "Parameters" : {
     "aWebInstancePort" : {
-        "Type"					: "Number",
-        "Default"				: "8080",
-        "Description"				: "Enter the port your web instances will listen on."
+        "Type"                                  : "Number",
+        "Default"                               : "8080",
+        "Description"                           : "Enter the port your web instances will listen on."
     },
     "bWebTarget" : {
-        "Type"					: "String",
-        "Default"				: "/index.html",
-        "Description"				: "Enter the web instance health check URI."
+        "Type"                                  : "String",
+        "Default"                               : "/index.html",
+        "AllowedPattern"                        : "/[a-zA-Z0-9.-]*",
+        "Description"                           : "Enter the web instance health check URI."
     },
     "cPublicSubnets" : {
-        "Type"					: "CommaDelimitedList",
-        "Default"				: "subnet-0123456, subnet-7890123",
-        "Description"				: "Enter the subnet ids for your public subnets."
+        "Type"                                  : "List<AWS::EC2::Subnet::Id>",
+        "Description"                           : "Enter the subnet ids for your public subnets."
     },
     "dSecurityGroupId" : {
-        "Type"					: "CommaDelimitedList",
-        "Default"				: "sg-0123456",
-        "Description"				: "Enter one or more security group ids."
+        "Type"                                  : "List<AWS::EC2::SecurityGroup::Id>",
+        "Description"                           : "Enter one or more security group ids."
     },
     "eSSLCertARN" : {
-        "Type"					: "String",
-        "Default"				: "arn:aws:iam::XXX:server-certificate/my.cert.com",
-        "Description"				: "Enter the site SSL cerificate ARN."
+        "Type"                                  : "String",
+        "Default"                               : "arn:aws:iam::012345678901:server-certificate/my.cert.com",
+        "AllowedPattern"                        : "arn:aws:iam::[0-9]+:server-certificate/[a-zA-Z0-9.-]*",
+        "Description"                           : "Enter the site SSL cerificate ARN."
     }
   },
 
@@ -39,16 +39,16 @@
     "S3LoggingBucketPolicy" : {
         "Type" : "AWS::S3::BucketPolicy",
         "Properties" : {
-          "Bucket"				: { "Ref" : "S3LoggingBucket" },
+          "Bucket"                              : { "Ref" : "S3LoggingBucket" },
           "PolicyDocument" : {
-            "Version"				: "2008-10-17",
+            "Version"                           : "2008-10-17",
             "Statement" : [ {
-              "Effect"				: "Allow",
+              "Effect"                          : "Allow",
               "Resource" : {
                 "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref": "S3LoggingBucket" }, "/AWSLogs/", { "Ref": "AWS::AccountId" }, "/*" ] ]
               },
-              "Principal"			: { "AWS": "*" },
-              "Action"				: [ "s3:PutObject" ]
+              "Principal"                       : { "AWS": "*" },
+              "Action"                          : [ "s3:PutObject" ]
             } ]
           }
         }
@@ -58,324 +58,324 @@
         "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
         "DependsOn": [ "S3LoggingBucketPolicy" ],
         "Properties" : {
-          "Subnets"				: { "Ref" : "cPublicSubnets"  },
-          "CrossZone"				: "true",
-          "SecurityGroups"			: { "Ref" : "dSecurityGroupId"  },
+          "Subnets"                             : { "Ref" : "cPublicSubnets"  },
+          "CrossZone"                           : "true",
+          "SecurityGroups"                      : { "Ref" : "dSecurityGroupId"  },
           "LBCookieStickinessPolicy" : [ {
-            "PolicyName"			: "StickyPolicy",
-            "CookieExpirationPeriod"		: "300"
+            "PolicyName"                        : "StickyPolicy",
+            "CookieExpirationPeriod"            : "300"
           } ],
           "HealthCheck" : 
           {
-            "HealthyThreshold"			: "2",
-            "Interval"				: "10",
+            "HealthyThreshold"                  : "2",
+            "Interval"                          : "10",
             "Target" : {
               "Fn::Join" : [ "", [ "HTTP", ":", { "Ref" : "aWebInstancePort" }, { "Ref" : "bWebTarget" } ] ]
             },
-            "Timeout"				: "5",
-            "UnhealthyThreshold"		: "3"
+            "Timeout"                           : "5",
+            "UnhealthyThreshold"                : "3"
           },
           "Listeners" : [
           {
-            "InstancePort"			: { "Ref" : "aWebInstancePort" },
-            "InstanceProtocol"			: "HTTP",
-            "LoadBalancerPort"			: "443",
-            "Protocol"				: "HTTPS",
-            "SSLCertificateId"			: { "Ref" : "eSSLCertARN" },
-            "PolicyNames"			: [ "StickyPolicy", "ELBSecurity-Policy-2014-10-15" ]
+            "InstancePort"                      : { "Ref" : "aWebInstancePort" },
+            "InstanceProtocol"                  : "HTTP",
+            "LoadBalancerPort"                  : "443",
+            "Protocol"                          : "HTTPS",
+            "SSLCertificateId"                  : { "Ref" : "eSSLCertARN" },
+            "PolicyNames"                       : [ "StickyPolicy", "ELBSecurity-Policy-2015-05" ]
           } ],
           "ConnectionDrainingPolicy": {
-            "Enabled"				: "true",
-            "Timeout"				: "60"
+            "Enabled"                           : "true",
+            "Timeout"                           : "60"
           },
           "AccessLoggingPolicy" : {
-            "S3BucketName"			: { "Ref" : "S3LoggingBucket" },
-            "Enabled"				: "true",
-            "EmitInterval"			: "60"
+            "S3BucketName"                      : { "Ref" : "S3LoggingBucket" },
+            "Enabled"                           : "true",
+            "EmitInterval"                      : "60"
           },
           "Policies" : [
           {
-            "PolicyName"			: "ELBSecurity-Policy-2014-10-15",
-            "PolicyType"			: "SSLNegotiationPolicyType",
+            "PolicyName"                        : "ELBSecurity-Policy-2015-05",
+            "PolicyType"                        : "SSLNegotiationPolicyType",
               "Attributes": [
                  { "Name" : "Protocol-SSLv2",
-                  "Value" : "false" 
-                 },
-                 { "Name" : "Protocol-TLSv1",
-                  "Value" : "true" 
+                  "Value" : "false"
                  },
                  { "Name" : "Protocol-SSLv3", 
-                  "Value" : "false" 
+                  "Value" : "false"
+                 },
+                 { "Name" : "Protocol-TLSv1",
+                  "Value" : "true"
                  },
                  { "Name" : "Protocol-TLSv1.1", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "Protocol-TLSv1.2", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "Server-Defined-Cipher-Order", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-ECDSA-AES128-GCM-SHA256", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-RSA-AES128-GCM-SHA256", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-ECDSA-AES128-SHA256", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-RSA-AES128-SHA256", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-ECDSA-AES128-SHA", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-RSA-AES128-SHA", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-ECDSA-AES256-GCM-SHA384", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-RSA-AES256-GCM-SHA384", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-ECDSA-AES256-SHA384", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-RSA-AES256-SHA384", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-RSA-AES256-SHA", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-ECDSA-AES256-SHA", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "AES128-GCM-SHA256", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "AES128-SHA256", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "AES128-SHA", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "AES256-GCM-SHA384", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "AES256-SHA256", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "AES256-SHA", 
-                  "Value" : "true" 
+                  "Value" : "true"
                  },
                  { "Name" : "DHE-RSA-AES128-SHA", 
-                  "Value" : "true" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-AES128-SHA", 
-                  "Value" : "true" 
+                  "Value" : "false"
                  },
                  { "Name" : "CAMELLIA128-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EDH-RSA-DES-CBC3-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DES-CBC3-SHA", 
-                  "Value" : "false" 
+                  "Value" : "true"
                  },
                  { "Name" : "ECDHE-RSA-RC4-SHA", 
-                  "Value" : "true" 
+                  "Value" : "false"
                  },
                  { "Name" : "RC4-SHA", 
-                  "Value" : "true" 
+                  "Value" : "false"
                  },
                  { "Name" : "ECDHE-ECDSA-RC4-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-AES256-GCM-SHA384", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-RSA-AES256-GCM-SHA384", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-RSA-AES256-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-AES256-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-RSA-AES256-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-AES256-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-RSA-CAMELLIA256-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-CAMELLIA256-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "CAMELLIA256-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EDH-DSS-DES-CBC3-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-AES128-GCM-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-RSA-AES128-GCM-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-RSA-AES128-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-AES128-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-RSA-CAMELLIA128-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-CAMELLIA128-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-AES128-GCM-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-AES128-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-AES128-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-AES256-GCM-SHA384", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-AES256-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-AES256-SHA256", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-CAMELLIA128-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-CAMELLIA256-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-DES-CBC3-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-RC4-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "ADH-SEED-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-DSS-SEED-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DHE-RSA-SEED-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EDH-DSS-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EDH-RSA-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "IDEA-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "RC4-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "SEED-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DES-CBC3-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "DES-CBC-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "RC2-CBC-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "PSK-AES256-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "PSK-3DES-EDE-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "KRB5-DES-CBC3-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "KRB5-DES-CBC3-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "PSK-AES128-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "PSK-RC4-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "KRB5-RC4-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "KRB5-RC4-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "KRB5-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "KRB5-DES-CBC-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-EDH-RSA-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-EDH-DSS-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-ADH-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-RC2-CBC-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-KRB5-RC2-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-KRB5-DES-CBC-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-KRB5-RC2-CBC-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-KRB5-DES-CBC-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-ADH-RC4-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-RC4-MD5", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-KRB5-RC4-SHA", 
-                  "Value" : "false" 
+                  "Value" : "false"
                  },
                  { "Name" : "EXP-KRB5-RC4-MD5", 
                   "Value" : "false"
