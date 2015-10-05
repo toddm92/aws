@@ -10,9 +10,8 @@
         "Description"                   : "Instance size."
     },
     "bUserAMI" : {
-        "Type"                          : "String",
+        "Type"                          : "AWS::EC2::Image::Id",
         "Default"                       : "ami-8e682ce6",
-        "AllowedPattern"                : "ami-[a-z0-9]*",
         "Description"                   : "Your instance image."
     },
     "cUserKeys" : {
@@ -30,13 +29,11 @@
         "Description"                   : "Enter the name of your Load Balancer."
     },
     "fAvailZones" : {
-        "Type"                          : "CommaDelimitedList",
-        "Default"                       : "us-east-1a, us-east-1c",
+        "Type"                          : "List<AWS::EC2::AvailabilityZone::Name>",
         "Description"                   : "Enter the availability-zones for your private subnets."
     },
     "gSubnets" : {
-        "Type"                          : "CommaDelimitedList",
-        "Default"                       : "subnet-53226b3e, subnet-47266f2a",
+        "Type"                          : "List<AWS::EC2::Subnet::Id>",
         "Description"                   : "Subnet Ids for your private subnets. (Note: Must match the availability-zones above.)"
     },
     "hDesiredCapacity" : {
