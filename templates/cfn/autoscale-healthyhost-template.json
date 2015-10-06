@@ -117,6 +117,7 @@
 
     "asgServergroup" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "DependsOn" : [ "alcServerlaunch", "snsASTopic" ],
       "Properties" : {
         "AvailabilityZones"             : { "Ref" : "fAvailZones" },
         "VPCZoneIdentifier"             : { "Ref" : "gSubnets" },
@@ -156,6 +157,7 @@
 
     "aspServerscaleUP" : {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "DependsOn" : [ "asgServergroup" ],
       "Properties" : {
       "AdjustmentType"                  : "ChangeInCapacity",
       "AutoScalingGroupName"            : { "Ref" : "asgServergroup" },
@@ -165,6 +167,7 @@
     },
     "aspServerscaleDN" : {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "DependsOn" : [ "asgServergroup" ],
       "Properties" : {
       "AdjustmentType"                  : "ChangeInCapacity",
       "AutoScalingGroupName"            : { "Ref" : "asgServergroup" },
@@ -174,6 +177,7 @@
 
     "monServeralarmLow" : {
       "Type" : "AWS::CloudWatch::Alarm",
+      "DependsOn" : [ "asgServergroup", "aspServerscaleUP" ],
       "Properties" : {
       "MetricName"                      : "HealthyHostCount",
       "Namespace"                       : "AWS/ELB",
@@ -188,6 +192,7 @@
     },
     "monServeralarmHigh" : {
       "Type" : "AWS::CloudWatch::Alarm",
+      "DependsOn" : [ "asgServergroup", "aspServerscaleDN" ],
       "Properties" : {
       "MetricName"                      : "HealthyHostCount",
       "Namespace"                       : "AWS/ELB",
