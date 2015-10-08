@@ -117,7 +117,7 @@
 
     "asgServergroup" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
-      "DependsOn" : [ "alcServerlaunch", "snsASTopic" ],
+      "DependsOn" : [ "snsASTopic" ],
       "Properties" : {
         "AvailabilityZones"             : { "Ref" : "fAvailZones" },
         "VPCZoneIdentifier"             : { "Ref" : "gSubnets" },
