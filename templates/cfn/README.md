@@ -34,6 +34,8 @@
   <li><b> vpc-beanstalk-template.json </b>
   <br> Creates a VPC with four subnets in two availability zones. Launches an Elastic Beanstalk environment. </br>
   <p>
+  ![VPC Communication Diagram](https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/vpc-beanstalk-env.jpg)
+  <p>
   <li><b> vpc-elasticache-template.json </b>
   <br> Creates a VPC with four subnets in two availability zones. Calls the <i>elasticache-template.json</i> nested stack. </br>
   <p>
