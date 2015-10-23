@@ -1,7 +1,7 @@
 ### Change S3 Object StorageClass
 
 <p>
-A S3 Put object triggers this function. It checks the storage class of the new object (by default STANDARD) and converts the object to STANDARD_IA.
+An S3 'put object' triggers this function. It checks the storage class of the new S3 object (by default STANDARD) and converts the object to STANDARD_IA.
 
 <b>Requirements:</b>
 <ul>
