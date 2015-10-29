@@ -31,10 +31,12 @@
   <li><b> vpc-2az-template.json </b>
   <br> VPC Architecture template. Creates a VPC in 2 availability-zones, 4-6 subnets (optional Db subnet tier). </br>
   <p>
+    <a href="https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/vpc-2az-diagram.jpg">VPC 2-AZ Diagram</a>
+  <p>
   <li><b> vpc-beanstalk-template.json </b>
   <br> Creates a VPC with four subnets in two availability zones. Launches an Elastic Beanstalk environment. </br>
   <p>
-  <a href="https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/vpc-beanstalk-env.jpg">Beanstalk VPC Diagram</a>
+  <a href="https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/vpc-beanstalk-env.jpg">Beanstalk VPC Environment</a>
   <p>
   <li><b> vpc-elasticache-template.json </b>
   <br> Creates a VPC with four subnets in two availability zones. Calls the <i>elasticache-template.json</i> nested stack. </br>
