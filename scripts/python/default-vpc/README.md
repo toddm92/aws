@@ -1,9 +1,10 @@
-### Delete Your Default VPCs
+### Delete Those Default VPCs
 
 <p>
 This Python script attempts to remove those pesky default VPCs in all regions from your AWS account.
 <p>
 <b>Warning:</b> Deleting the default VPC is a permanent action.
+<br>
 You must contact AWS Support if you want to create a new default VPC.
 
 <b>Requirements:</b>
