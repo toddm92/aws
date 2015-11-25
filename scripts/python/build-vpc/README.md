@@ -12,9 +12,9 @@ This Python script creates a two or three availability-zone VPC in the AWS regio
 
 <b>Usage:</b>
 <p>
-<code>
+<pre>
 build-vpc.py
-</code>
+</pre>
 
 <b>Arguments</b>
 <ul>
