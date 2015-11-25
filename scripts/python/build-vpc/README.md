@@ -16,7 +16,7 @@ This Python script creates a two or three availability-zone VPC in the AWS regio
 build-vpc.py
 </pre>
 
-<b>Arguments</b>
+<b>Arguments:</b>
 <ul>
  <li> Number of availability-zones (AZs) [ 2 or 3 ]
  <li> Region [ Any valid AWS region ]
