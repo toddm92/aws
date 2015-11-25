@@ -1,260 +1,213 @@
 #!/usr/bin/env python
 #
 # Python Version: 2.7
-# Build a VPC
+# Boto Version 2.38
+#
+# Create a VPC
+#
 
 # Must be the first line
 from __future__ import print_function
+
+# https://pythonhosted.org/netaddr
+from netaddr import *
 
 import sys
 import boto.vpc
 import boto.ec2
 
-# Default variables
-REGIONS = ( 'us-east-1', 'eu-west-1', 'ap-northeast-1', 'us-west-1', 'us-west-2', 'ap-southeast-1', 'ap-southeast-2', 'sa-east-1', 'eu-central-1' )
-THREEAZREGIONS = ( 'us-east-1', 'eu-west-1', 'us-west-2' )
+class Tag():
 
-VPC_CIDR =  '10.10.0.0/20'
-SUBNETS = ( '10.10.0.0/24',  '10.10.1.0/24',  '10.10.2.0/24',
-            '10.10.3.0/24',  '10.10.4.0/24',  '10.10.5.0/24',
-            '10.10.6.0/24',  '10.10.7.0/24',  '10.10.8.0/24' )
+  def __init__(self, name, resource, region):
+    abbr = '-nul'
+    if region == 'us-east-1':      abbr = '-ue1'
+    if region == 'eu-west-1':      abbr = '-ew1'
+    if region == 'ap-northeast-1': abbr = '-an1'
+    if region == 'us-west-1':      abbr = '-uw1'
+    if region == 'us-west-2':      abbr = '-uw2'
+    if region == 'ap-southeast-1': abbr = '-as1'
+    if region == 'ap-southeast-2': abbr = '-as2'
+    if region == 'eu-central-1':   abbr = '-ec1'
+    if region == 'sa-east-1':      abbr = '-se1'
 
-def abbr_region(region):
-    if region == 'us-east-1':
-        aregion = 'ue1'
-    if region == 'eu-west-1':
-        aregion = 'ew1'
-    if region == 'ap-northeast-1':
-        aregion = 'an1'
-    if region == 'us-west-1':
-        aregion = 'uw1'
-    if region == 'us-west-2':
-        aregion = 'uw2'
-    if region == 'ap-southeast-1':
-        aregion = 'as1'
-    if region == 'ap-southeast-2':
-        aregion = 'as2'
-    if region == 'eu-central-1':
-        aregion = 'ec1'
+    self.name = name + resource + abbr
 
-    return aregion
-   
-def usage1():
-    print("""
-        Creates a VPC in 1-3 availability-zones.  You should create at a minimum, 1 Subnet per AZ.
-        At each Subnet tier, a new route-table with a default route and a new NACL is created.
+  def tag_resource(self, conn, resource_id):
+    conn.create_tags(resource_id, { 'Name' : self.name })
 
-    """)
 
-def usage2():
-    print("\t* use: --profile <profile_name>")
-    print("\t  profile_name from your ~/.boto (~/.aws/config)\n\n")
+def create_vpc(conn, name, region, cidr):
+  """ Create the VPC """
 
-    exit()
+  try:
+    vpc = conn.create_vpc(cidr, instance_tenancy='default')
+  except boto.exception.EC2ResponseError as e:
+    print(e.message)
+    exit(1)
+  else:
+    conn.modify_vpc_attribute(vpc.id, enable_dns_support=True)
+    conn.modify_vpc_attribute(vpc.id, enable_dns_hostnames=True)
+    t = Tag(name, 'vpc', region); t.tag_resource(conn, vpc.id)
 
-def tag_it(resource_id, resource):
-    """Tag Resources"""
+    print("vpc-id: ", vpc.id, "\tname: ", t.name)
+    return vpc.id
 
-    name = owner + "-" + env + "-" + resource + "-" + abbr_reg
-    conn.create_tags(resource_id, { 'Name' : name }, dry_run=False)
+def create_igw(conn, name, region, vpc_id):
+  """ Create and attach an igw """
 
-def syntax_error():
-    print("Something went wrong.  Please check your syntax..")
+  try:
+    igw = conn.create_internet_gateway()
+  except boto.exception.EC2ResponseError as e:
+    print(e.message)
+    exit(1)
+  else:
+    conn.attach_internet_gateway(igw.id, vpc_id)
+    t = Tag(name, 'igw', region); t.tag_resource(conn, igw.id)
 
-# Check for arguments
-#
-args = len(sys.argv)
-if args != 3:
-    usage1()
-    usage2()
+    return igw.id
 
-if '--profile' in (str(sys.argv[1]).lower()):
-    profile = str(sys.argv[2]).lower()
-else:
-    usage2()
+def subnet_sizes(azs, cidr):
+  """
+  Calculate subnets sizes
 
-# Get owner/service and env info
-#
-owner = ""
-while len(owner) == 0:
-    print("Enter the Owner or Service (i.e. cloudops): ", end = "")
-    owner = raw_input().lower()
-    owner = owner.replace(' ', '')
+  Possible scenarios:
+    a) /25 2AZ  (4 Subnets = /27)
+    b) /24 2AZ  (4 Subnets = /26)
+    c) /23 2AZ  (4 Subnets = /25)
+    d) /22 2AZ  (4 Subnets = /24)
+    e) /23 3AZ  (3 Subnets = /27, 3 Subnets = /25)
+    f) /22 3AZ  (3 Subnets = /26, 3 Subnets = /24)
+  """
 
-env = ""
-while len(env) == 0:
-    print("Enter the Environment (i.e. prod, stage, dev): ", end = "")
-    env = raw_input().lower()
-    env = env.replace(' ', '')
+  if azs != 2 and azs != 3:
+    print("ERROR: Number of AZs should be 2 or 3.")
+    exit(1)
+    
+  netmasks = ('255.255.252.0', '255.255.254.0', '255.255.255.0', '255.255.255.128')
 
-# Get the region
-#
-region = 'blah'
-while region not in (REGIONS):
-    region = raw_input("Enter the AWS region: ")
+  ip = IPNetwork(cidr)
+  mask = ip.netmask
 
-# Abbr region
-abbr_reg = abbr_region(region)
+  if azs == 3:
+    if str(mask) not in netmasks[0:2]:
+      print("ERROR: Netmask " + str(mask) + " not found.")
+      exit(1)
+    
+    for n, netmask in enumerate(netmasks):
+      if str(mask) == netmask:
+        pub_net = list(ip.subnet(n + 24))
+        pri_subs = pub_net[1:]
+        pub_mask = pub_net[0].netmask
+      
+    pub_split = list(ip.subnet(26)) if (str(pub_mask) == '255.255.255.0') else list(ip.subnet(27))
+    pub_subs = pub_split[:3]
+  
+    subnets = pub_subs + pri_subs
 
-myregion = boto.ec2.get_region(region_name=region)
-try:
-    conn = boto.vpc.VPCConnection(profile_name=profile, region=myregion)
-except boto.provider.ProfileNotFoundError:
-    print("\nERROR: Please check your profile_name in ~/.boto and try again..\n")
-    usage2()
+  else:
+    if str(mask) not in netmasks:
+      print("ERROR: Netmask " + str(mask) + " not found.")
+      exit(1)
 
-# Get number of AZs
-#
-if region in (THREEAZREGIONS):
-    az_max = 3
-else:
-    az_max = 2
+    for n, netmask in enumerate(netmasks):
+      if str(mask) == netmask:
+        subnets = list(ip.subnet(n + 24))
 
-az_no = 0
-while az_no > int(az_max) or int(az_no) == 0:
-    try:
-        print("\nEnter up to", az_max, "AZs..")
-        az_no = raw_input("Enter the number of availability-zones: ")
-        az_no = int(az_no)
-    except ValueError:
-        print("Please enter a number..")
+  return subnets
 
-# Get number of Subnets
-#
-sub_no = 0
-sub_max = int(az_no) * 3
-while sub_no > int(sub_max) or int(sub_no) == 0: 
-    try:
-        print("\nEnter the total number of subnets desired, not to exceed", sub_max, "subnets.." )
-        sub_no = raw_input("Total number of subnets: ")
-        sub_no = int(sub_no)
-    except ValueError:
-        print("Please enter a number..")
+def create_sub(conn, name, region, vpc_id, azs, subnets, zones):
+  """ Create subnets """
 
-# Create the VPC
-#
-running = True
-while running:
-    try:
-        print("\nEnter your VPC CIDR block [", VPC_CIDR, "]: ", end = "")
-        cidr = str(raw_input())
-        if cidr == "":
-            cidr = VPC_CIDR
+  i = 0; sub_ids = []
+  for sub in subnets:
+    subnet = conn.create_subnet(vpc_id, sub, availability_zone=zones[i])
+    t = Tag(name, 'sub', region); t.tag_resource(conn, subnet.id)
 
-        print("Creating VPC..")
-        vpc = conn.create_vpc(cidr, instance_tenancy='default')
-        conn.modify_vpc_attribute(vpc.id, enable_dns_support=True)
-        conn.modify_vpc_attribute(vpc.id, enable_dns_hostnames=True)
-        running = False
-    except boto.exception.EC2ResponseError:
-        syntax_error()
-tag_it(vpc.id, "vpc")
+    sub_ids.append(subnet.id)
+    print("sub-id: ", subnet.id, "\tsize: ", sub, "\tzone: ", zones[i])
+    i += 1
+    if i == azs: i = 0
 
-# Create an igw
-#
-print("Creating igw..")
-igw = conn.create_internet_gateway()
-conn.attach_internet_gateway(igw.id, vpc.id)
-tag_it(igw.id, "igw")
+  return sub_ids
 
-# Counters and lists needed for the main loop
-#
-all_azs = conn.get_all_zones()
-az_total = 0
-az_count = 1
-az_list = [ ]
-sub_total = 0
-sub_list = [ ]
-tag_tier = 'public'
-tag_tier_no = 1
-tag_sub_no = 1
+def create_rtb(conn, name, region, vpc_id, azs, sub_ids, igw_id):
+  """ Create and associate route-tables """
 
-# main loop
-#
-while sub_no != 0:
+  i = 0; rtb_ids = []
+  for sub in sub_ids:
+    if i == 0:
+      rtb = conn.create_route_table(vpc_id)
+      conn.create_route(rtb.id, '0.0.0.0/0', igw_id)
+      t = Tag(name, 'rtb', region); t.tag_resource(conn, rtb.id)
 
-    # Get the zones
-    running = True
-    while running:
-        try:
-            print("")
-            if az_total < az_no:
-                new_az_name = str(all_azs[az_total])
-                new_az_name = new_az_name[5:]
-                print("Enter the zone name for AZ-" + str(az_count) + " [", new_az_name, "]: ", end = "")
-                az_name = raw_input()
-                if az_name == "":
-                    az_name = new_az_name
+      rtb_ids.append(rtb.id)
+    conn.associate_route_table(rtb.id, sub)
+    i += 1
+    if i == azs: i = 0
 
-                conn.get_all_zones(zones=az_name)
-                az_list.append(az_name)
-                az_total += 1
-                az_count += 1
-            running = False
-        except boto.exception.EC2ResponseError:
-            syntax_error()
+  return rtb_ids
 
-    # Create our subnets
-    running = True
-    while running:
-        try:
-            print("Enter the CIDR for " + tag_tier + " subnet in zone,", az_list[len(sub_list)], "[", SUBNETS[sub_total], "]: ", end = "")
-            subnet_cidr = raw_input()
-            if subnet_cidr == "":
-                subnet_cidr = SUBNETS[sub_total]
+def create_acl(conn, name, region, vpc_id, azs, sub_ids):
+  """ Create and associate network access-lists """
 
-            subnet_cidr = str(subnet_cidr)
-            subnet = conn.create_subnet(vpc.id, subnet_cidr, availability_zone=az_list[len(sub_list)])
-            tag_it(subnet.id, tag_tier + str(tag_tier_no) + "-subnet" + str(tag_sub_no))
-            sub_list.append(subnet.id)
-            sub_total += 1
-            sub_no -= 1
-            tag_sub_no += 1
-            running = False
-        except boto.exception.EC2ResponseError:
-            syntax_error()
-            
-    # Create our route tables and NACLs
-    if az_no == len(sub_list):
-        print("\nCreating route-table..")
-        route_table = conn.create_route_table(vpc.id)
-        conn.create_route(route_table.id, '0.0.0.0/0', igw.id)
-        tag_it(route_table.id, tag_tier + str(tag_tier_no) + "-rtb")
+  i = 0; acl_ids = []
+  for sub in sub_ids:
+    if i == 0:
+      acl = conn.create_network_acl(vpc_id)
+      conn.create_network_acl_entry(acl.id, 100, -1, 'allow', '0.0.0.0/0', egress=False)
+      conn.create_network_acl_entry(acl.id, 100, -1, 'allow', '0.0.0.0/0', egress=True)
+      t = Tag(name, 'acl', region); t.tag_resource(conn, acl.id)
 
-        print("Creating NACL..")
-        network_acl = conn.create_network_acl(vpc.id)
-        tag_it(network_acl.id, tag_tier + str(tag_tier_no) + "-nacl")
-        if tag_tier == 'private':
-            # Ingress
-            conn.create_network_acl_entry(network_acl.id, 100, -1, 'allow', cidr, egress=False)
-            conn.create_network_acl_entry(network_acl.id, 200, 6, 'allow', '0.0.0.0/0', egress=False, port_range_from='1024', port_range_to='65535')
-            conn.create_network_acl_entry(network_acl.id, 300, 17, 'allow', '0.0.0.0/0', egress=False, port_range_from='1024', port_range_to='65535')
-            # Egress
-            conn.create_network_acl_entry(network_acl.id, 100, -1, 'allow', cidr, egress=True)
-            conn.create_network_acl_entry(network_acl.id, 200, 6, 'allow', '0.0.0.0/0', egress=True, port_range_from='443', port_range_to='443')
-            conn.create_network_acl_entry(network_acl.id, 300, 6, 'allow', '0.0.0.0/0', egress=True, port_range_from='80', port_range_to='80')
-        else:
-            conn.create_network_acl_entry(network_acl.id, 100, -1, 'allow', '0.0.0.0/0', egress=False)
-            conn.create_network_acl_entry(network_acl.id, 100, -1, 'allow', '0.0.0.0/0', egress=True)
+      acl_ids.append(acl.id)
+    conn.associate_network_acl(acl.id, sub)
+    i += 1
+    if i == azs: i = 0
 
-        for sub in sub_list:
-            conn.associate_route_table(route_table.id, sub)
-            conn.associate_network_acl(network_acl.id, sub)
+  return acl_ids
 
-        sub_list = [ ]
-        tag_sub_no = 1
+def main(azs, region, keyid, secret, cidr, owner, env):
+  """
+  Do the work
 
-        if tag_tier == "private":
-            tag_tier_no += 1
-        tag_tier = 'private'
+  1.) Setup/validate region and availability-zones
+  2.) Create the VPC
+  3.) Create and attach an internet-gateway
+  4.) Calculate subnet sizes (netaddr)
+  5.) Create subnets
+  6.) Create and associate route-tables
+  7.) Create and associate network access-lists
+  """
 
-# end of main loop
+  # Validate the region
+  myregion = boto.ec2.get_region(region_name=region)
+  if myregion == None:
+    print("Unknown region.")
+    exit(1)
 
-# Output info
-#
-print("\n** VPC creation complete. ** \n\nVPC Id :", vpc.id)
+  # Establish a VPC service connection
+  try:
+    conn = boto.vpc.VPCConnection(aws_access_key_id=keyid, aws_secret_access_key=secret, region=myregion)
+  except boto.exception.EC2ResponseError as e:
+    print(e.message)
+    exit(1)
 
-subnet_list = conn.get_all_subnets(filters={ "vpcId":vpc.id })
-print("AZ total :", az_total, "\nSubnets :")
-for sub in subnet_list:
-    print(sub.id)
+  # Grab the availability-zones
+  zones = []
+  all_zones = conn.get_all_zones()
+  for zone in all_zones:
+    if zone.state != 'available':
+      continue
+    zones.append(zone.name)
+
+  subnets = subnet_sizes(azs, cidr)               # Calculate the subnet sizes
+  name = owner.lower() + '-' + env.lower() + '-'  # Used for tagging
+
+  vpc_id  = create_vpc(conn, name, region, cidr)
+  igw_id  = create_igw(conn, name, region, vpc_id)
+  sub_ids = create_sub(conn, name, region, vpc_id, azs, subnets, zones)
+  rtb_ids = create_rtb(conn, name, region, vpc_id, azs, sub_ids, igw_id)
+  acl_ids = create_acl(conn, name, region, vpc_id, azs, sub_ids)
+
+if __name__ == "__main__":
+
+  main(azs = 3, region = 'us-west-2', keyid = 'XXXX', secret = 'XXXX', cidr = '10.64.0.0/23', owner = 'eng', env = 'dev')
