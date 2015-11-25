@@ -29,7 +29,7 @@ build-vpc.py
 
 <b>Output:</b>
 <p>
-Using the VPC CIDR: 10.64.0.0/23
+Using the VPC CIDR: 10.64.0.0/23 in 3 AZs
 <br>
 <pre>
 ./build-vpc.py
