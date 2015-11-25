@@ -15,9 +15,9 @@ You must contact AWS Support if you want to create a new default VPC.
 
 <b>Usage:</b>
 <p>
-<code>
+<pre>
 default-vpc.py
-</code>
+</pre>
 
 <b>Output:</b>
 <p>
