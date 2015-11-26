@@ -17,7 +17,7 @@ build-vpc.py
 </pre>
 
 <b>Arguments:</b>
-<ul>
+<ol>
  <li> Number of availability-zones (AZs) [ 2 or 3 ]
  <li> Region [ Any valid AWS region ]
  <li> KeyId [ AWS key.id ]
@@ -25,7 +25,7 @@ build-vpc.py
  <li> VPC CIDR size [ /25, /24, /23, /22 ]
  <li> Owner (for tagging) [ eng, cloudops, etc ]
  <li> Env (for tagging) [ dev, stage, prod, etc ]
-</ul>
+</ol>
 
 <b>Output:</b>
 <p>
