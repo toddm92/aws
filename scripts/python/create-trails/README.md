@@ -1,6 +1,6 @@
 ### Create Trails
 
-This Python script will enable CloudTrail in all regions for an AWS account.
+This Python script will enable CloudTrail in all regions for an AWS account.  Design note: Both the CloudTrail S3 bucket and SQS queue should be located in a seperate secured central account.
 
 It does the following:
 <ol>
@@ -12,7 +12,7 @@ It does the following:
 
 <b>Requirements:</b>
 <ul>
- <li> Tested w/ python version 2.7 / boto version 2.34
+ <li> Tested w/ python version 2.7 / boto version 2.38
  <li> Valid AWS API keys
  <li> An existing S3 bucket with CloudTrail policy
  <li> An existing SQS queue ARN
@@ -26,13 +26,29 @@ It does the following:
     -n &lt;client-name&gt; : client or service name
     -k &lt;key&gt;         : aws access key id
     -s &lt;secret&gt;      : aws secret access key
+    -h                     : print this usage statement
 
    == Naming convention ==
     * S3 bucket: "&lt;client-name&gt;-central-cloudtrail-logs"
     * SQS queue: "&lt;client-name&gt;-central-cloudtrail-queue"
 </pre>
 
+<b> Output: </b>
+
+<pre>
+./create-trails2.py -n test -k XXXX -s XXXX
+Creating trail in us-east-1..
+Creating trail in ap-northeast-1..
+Creating trail in eu-west-1..
+Creating trail in ap-southeast-1..
+Creating trail in ap-southeast-2..
+A trail already exists in the us-west-2 region.
+Creating trail in us-west-1..
+Creating trail in eu-central-1..
+Creating trail in sa-east-1..
+</pre>
+
 <b> To Do: </b>
 <ul>
-  <li> Testing and error checking
+  <li> Clean up work
 </ul>
