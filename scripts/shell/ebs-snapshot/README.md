@@ -31,8 +31,8 @@ Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
 <b>Usage:</b>
 <p>
 <pre>
-ebs-snapshot.sh --profile &lt;profile_name&rt; [ --region &lt;region_name&rt; ]
-ebs-snapshot-dp.sh [ --region &lt;region_name&rt; ]
+ebs-snapshot.sh --profile &lt;profile_name&gt; [ --region &lt;region_name&gt; ]
+ebs-snapshot-dp.sh [ --region &lt;region_name&gt; ]
 </pre>
 
 <b>Output:</b>
