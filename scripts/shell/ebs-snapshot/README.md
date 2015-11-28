@@ -25,7 +25,7 @@ Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
 <ul>
  <li> The snapshot status equals "complete"
  <li> Snapshot has the description, "Automated snapshot"
- <li> The snapshot is older than the specified retention period/date
+ <li> The snapshot is older than the specified retention period/date (7 days by default)
 </ul>
 
 <b>Usage:</b>
