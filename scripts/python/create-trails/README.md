@@ -26,7 +26,7 @@ It does the following:
     -n &lt;client-name&gt; : client or service name
     -k &lt;key&gt;         : aws access key id
     -s &lt;secret&gt;      : aws secret access key
-    -h                  : print this usage statement
+    -h               : print this usage statement
 
    == Naming convention ==
     * S3 bucket: "&lt;client-name&gt;-central-cloudtrail-logs"
