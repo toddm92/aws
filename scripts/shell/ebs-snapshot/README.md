@@ -70,34 +70,6 @@ snap-35097d70 has been deleted.
 Data Pipeline Workflow
 ![EBS Snapshot Diagram](https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/ebs-autosnap-edp-flow.jpg)
 
-EC2 Resource Role Policy (Tested w/ Data Pipeline)
-<pre>
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "AutosnapPermissions",
-            "Action": [
-                "ec2:CreateSnapshot",
-                "ec2:DeleteSnapshot",
-                "ec2:DescribeAvailabilityZones",
-                "ec2:DescribeRegions",
-                "ec2:DescribeSnapshotAttribute",
-                "ec2:DescribeSnapshots",
-                "ec2:DescribeTags",
-                "ec2:DescribeVolumeAttribute",
-                "ec2:DescribeVolumeStatus",
-                "ec2:DescribeVolumes",
-                "datapipeline:*",
-                "s3:*"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        }
-    ]
-}
-</pre>
-
 AWS Linux Date
 <p>
 <code>
