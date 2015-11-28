@@ -20,7 +20,7 @@ It does the following:
 
 <b>Design:</b>
 
-![Trails Design](![Trails Design](https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/sclass-flow.jpg)
+(![Trails Design](https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/cloudtrail-design.jpg)
 
 <b> Usage: </b>
 
