@@ -30,13 +30,10 @@ Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
 
 <b>Usage:</b>
 <p>
-<code>
+<pre>
 ebs-snapshot.sh --profile \<profile_name\> [ --region \<region_name\> ]
-</code>
-<p>
-<code>
 ebs-snapshot-dp.sh [ --region \<region_name\> ]
-</code>
+</pre>
 
 <b>Output:</b>
 <pre>
@@ -72,6 +69,6 @@ Data Pipeline Workflow
 
 AWS Linux Date
 <p>
-<code>
+<pre>
 date -d"$TODAY" +%s
-</code>
+</pre>
