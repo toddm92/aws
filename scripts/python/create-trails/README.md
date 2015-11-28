@@ -52,5 +52,5 @@ Creating trail in sa-east-1..
 
 <b> To Do: </b>
 <ul>
-  <li> Clean up work
+  <li> Create a server side script!
 </ul>
