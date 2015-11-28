@@ -18,7 +18,6 @@ It does the following:
  <li> An existing SQS queue ARN
 </ul>
 
-<b>Design:</b>
 ![Trails Design](https://s3-us-west-2.amazonaws.com/toddm92/public/diagrams/cloudtrail-design.jpg)
 
 <b> Usage: </b>
