@@ -1,7 +1,7 @@
-### Delete Those Default VPCs
+### Remove Those Default VPCs
 
 <p>
-This Python script attempts to remove those pesky default VPCs in all regions from your AWS account.
+This Python script attempts to delete those pesky default VPCs in all regions from your AWS account.
 <p>
 <b>Warning:</b> 
 <br>
