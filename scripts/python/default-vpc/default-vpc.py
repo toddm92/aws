@@ -59,7 +59,11 @@ def del_rtb(conn, vpcid):
   rtbs = conn.get_all_route_tables(filters={'vpc-id': vpcid})
   if rtbs:
     try:
-      for tbl in rtbs: 
+      for tbl in rtbs:
+        for assoc in tbl.associations:
+          main = 'true' if (assoc.main == True) else 'false'
+        if main == 'true':
+          continue
         print("Removing rtb-id: ", tbl.id) if (VERBOSE == 1) else ""
         status = conn.delete_route_table(tbl.id)
     except boto.exception.EC2ResponseError as e:
