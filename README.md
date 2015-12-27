@@ -1,5 +1,7 @@
 ### A place for my AWS work
 
+![AWS Logo](aws.png)
+
 * **policies:**
     JSON policies for IAM, S3, etc.
 
