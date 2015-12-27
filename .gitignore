@@ -1,0 +1,30 @@
+# OSX files
+.DS_Store
+.AppleDouble
+.LSOverride
+scripts/.DS_Store
+scripts/*/.DS_Store
+scripts/*/*/.DS_Store
+templates/.DS_Store
+templates/*/.DS_Store
+policies/.DS_Store
+policies/*/.DS_Store
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Images
+*.png
+*.jpg
