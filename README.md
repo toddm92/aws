@@ -1,20 +1,18 @@
 ### A place for my AWS work
 
-<ul>
- <li> <b>policies:</b>
+* **policies:**
     JSON policies for IAM, S3, etc.
 
- <li> <b>scripts:</b>
+* **scripts:**
     Various tools and things mostly python (boto) and shell
 
- <li> <b>templates:</b>
+* **templates:**
     CloudFormation goodies
 
-  <li> <b>wiki:</b>
+* **wiki:**
     notes, etc.
 
-  </ul>
+---
 
-<hr>
 http://about.me/todd_murchison
 
