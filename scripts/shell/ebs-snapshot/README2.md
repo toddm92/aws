@@ -24,13 +24,15 @@ Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
 
 **Usage:**
 
-`ebs-snapshot.sh --profile &lt;profile_name&gt; [ --region &lt;region_name&gt; ]`
-`ebs-snapshot-dp.sh [ --region &lt;region_name&gt; ]`
+`ebs-snapshot.sh --profile <profile_name> [ --region <region_name> ]`
+
+`ebs-snapshot-dp.sh [ --region <region_name> ]`
 
 **Output:**
 
 `./ebs-snapshot.sh --profile eng --region us-west-2`
 
+```JSON
 Creating snapshot for EBS volume, vol-953dcf85...
 {
     "Description": "Automated snapshot", 
@@ -43,6 +45,7 @@ Creating snapshot for EBS volume, vol-953dcf85...
     "SnapshotId": "snap-e054ffa3", 
     "OwnerId": "XXXXXXXX5893"
 }
+```
 
 snap-e29174a0 has been deleted.
 snap-35097d70 has been deleted.
