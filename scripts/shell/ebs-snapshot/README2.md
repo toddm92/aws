@@ -31,7 +31,9 @@ ebs-snapshot-dp.sh [ --region <region_name> ]
 
 **Output:**
 
-`./ebs-snapshot.sh --profile eng --region us-west-2`
+```
+./ebs-snapshot.sh --profile eng --region us-west-2
+```
 
 ```
 Creating snapshot for EBS volume, vol-953dcf85...
@@ -52,8 +54,8 @@ snap-35097d70 has been deleted.
 
 **To Do:**
 
-* Modify to handle/use the `date` command from other linux flavors
-* Add the necessary logic to run from either cmd-line (i.e. --profile) or Data Pipeline
+- [ ] Modify to handle/use the `date` command from other linux flavors
+- [ ] Add the necessary logic to run from either cmd-line (i.e. --profile) or Data Pipeline
 
 **Notes:**
 
