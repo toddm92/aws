@@ -8,7 +8,7 @@ Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
 
 **Requirements:**
 
-* The awscli  (`sudo pip install awscli`)
+* The awscli  `sudo pip install awscli`
 * A valid profile in ~/.aws/config or ${AWS_CONFIG_FILE} with the appropriate API keys (ebs-snapshot.sh)
 * MacOS `date` command/format (ebs-snapshot.sh)
 
@@ -25,14 +25,13 @@ Can be run from cron once a day, or from AWS Data Pipeline (ebs-snapshot-dp.sh)
 **Usage:**
 
 `ebs-snapshot.sh --profile <profile_name> [ --region <region_name> ]`
-
 `ebs-snapshot-dp.sh [ --region <region_name> ]`
 
 **Output:**
 
 `./ebs-snapshot.sh --profile eng --region us-west-2`
 
-```JSON
+```
 Creating snapshot for EBS volume, vol-953dcf85...
 {
     "Description": "Automated snapshot", 
@@ -45,10 +44,9 @@ Creating snapshot for EBS volume, vol-953dcf85...
     "SnapshotId": "snap-e054ffa3", 
     "OwnerId": "XXXXXXXX5893"
 }
-```
-
 snap-e29174a0 has been deleted.
 snap-35097d70 has been deleted.
+```
 
 **To Do:**
 
