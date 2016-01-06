@@ -1,5 +1,5 @@
 ### Automated EBS Volume Snapshots
 
-This scripts has moved into it's own repo:
+This script has moved into its own repo:
 
 https://github.com/toddm92/ebs-snapshot
