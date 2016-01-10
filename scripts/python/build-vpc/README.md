@@ -1,5 +1,5 @@
 ### Create an AWS VPC
 
-Moved into it's own repo:
+Moved into its own repo:
 
 https://github.com/toddm92/vpc-create
