@@ -1,22 +1,21 @@
-### Build VPC NAT route tables
+### Build VPC NAT Route Tables
 
-<p>
 This Python tool creates one or more route tables in an existing VPC.  Used for sending specific traffic (prefixes) thru a NAT gateway.
 
-<b>Requirements:</b>
-<ul>
- <li> Tested w/ python version 2.7 / boto version 2.38
- <li> Valid AWS API keys/ profile
-</ul>
+**Requirements:**
 
-<b>Usage:</b>
-<p>
-<pre>
+* Tested w/ python version 2.7 / boto version 2.38
+* Valid AWS API keys/ profile
+
+**Usage:**
+
+```
 create-nat-rt.py
-</pre>
+```
 
-<b>Output:</b>
-<pre>
+**Output:**
+
+```
 ./create-nat-rt.py
 
     This tool creates one or more route tables in a VPC specified by the user.
@@ -50,10 +49,11 @@ Route Table name? Nat-AZ-2
 New Route Table Id for nat-az-2 : rtb-86caf3e3
 
 Create another Route Table? n
-</pre>
+```
 
-<b>New route-table:</b>
-<pre>
+New route-table:
+
+```
 aws ec2 describe-route-tables --route-table-ids rtb-bccaf3d9 --profile eng --region us-west-2
 {
     "RouteTables": [
@@ -99,4 +99,4 @@ aws ec2 describe-route-tables --route-table-ids rtb-bccaf3d9 --profile eng --reg
         }
     ]
 }
-</pre>
+```
