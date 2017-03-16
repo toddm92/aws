@@ -5,3 +5,7 @@ This Python script creates a two or three availability-zone VPC in the AWS regio
 Moved into its own repo:
 
 https://github.com/toddm92/vpc-create
+
+API Flask version:
+
+https://github.com/toddm92/flask-vpc-create
